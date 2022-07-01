@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
 
     private NodeMCU_Garry nodeMCUGarry;
-//    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @SneakyThrows
     @GetMapping("/garry/temperature")
     public String temperature(){
-//        String json = nodeMCUGarry.getRequest();
+        String json = nodeMCUGarry.getTemperature();
 //        Data data = objectMapper.readValue(json,Data.class);
-//        JsonNode jsonNode = objectMapper.readTree(json);
-//        String color = jsonNode.get("hello").asText();
-        return nodeMCUGarry.getTemperature();
+        JsonNode jsonNode = objectMapper.readTree(json);
+        String temp = jsonNode.get("temp").asText();
+        return temp;
     }
     @GetMapping("/garry/backlightOn")
     public String backlightOn(){
