@@ -19,12 +19,12 @@ public class MainController {
 
     @SneakyThrows
     @GetMapping("/garry/temperature")
-    public String getRequest(){
+    public String temperature(){
 //        String json = nodeMCUGarry.getRequest();
 //        Data data = objectMapper.readValue(json,Data.class);
 //        JsonNode jsonNode = objectMapper.readTree(json);
 //        String color = jsonNode.get("hello").asText();
-        return nodeMCUGarry.getRequest();
+        return nodeMCUGarry.getTemperature();
     }
     @GetMapping("/garry/backlightOn")
     public String backlightOn(){
