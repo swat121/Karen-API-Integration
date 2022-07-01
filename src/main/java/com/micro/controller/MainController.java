@@ -26,4 +26,12 @@ public class MainController {
 //        String color = jsonNode.get("hello").asText();
         return nodeMCUGarry.getRequest();
     }
+    @GetMapping("/garry/backlightOn")
+    public String backlightOn(){
+        return nodeMCUGarry.setting("backlight","on");
+    }
+    @GetMapping("/garry/backlightOff")
+    public String backlightOff(){
+        return nodeMCUGarry.setting("backlight","off");
+    }
 }
