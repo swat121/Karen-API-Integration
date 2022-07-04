@@ -8,4 +8,8 @@ import org.springframework.stereotype.Component;
 public class GarryResponse {
     @JsonProperty("temp")
     private String temperature;
+
+    private String backlight;
+
+    private String message;
 }
