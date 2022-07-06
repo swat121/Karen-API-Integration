@@ -20,7 +20,7 @@ import java.rmi.ConnectIOException;
 @RequiredArgsConstructor
 public class MainController {
 
-    private String resourceUrl = "http://192.168.0.100:80/";
+    private final String resourceUrlGarry;
     private final RestTemplate restTemplate;
     @SneakyThrows
     @GetMapping("/garry/{key}")
@@ -29,13 +29,13 @@ public class MainController {
         ResponseEntity<GarryResponse> response;
             switch (key) {
                 case "temperature":
-                    response = restTemplate.getForEntity(resourceUrl + key, GarryResponse.class);
+                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
                     return response.getBody().getTemperature();
                 case "backlightOn":
-                    response = restTemplate.getForEntity(resourceUrl + "setting?backlight=on", GarryResponse.class);
+                    response = restTemplate.getForEntity(resourceUrlGarry + "setting?backlight=on", GarryResponse.class);
                     return response.getBody().getBacklight();
                 case "backlightOff":
-                    response = restTemplate.getForEntity(resourceUrl + "setting?backlight=off", GarryResponse.class);
+                    response = restTemplate.getForEntity(resourceUrlGarry + "setting?backlight=off", GarryResponse.class);
                     return response.getBody().getBacklight();
                 default:
                     return "Такое еще не придумал";
@@ -47,7 +47,7 @@ public class MainController {
     @GetMapping("/garry/message/{text}")
     public String message(@PathVariable(value = "text") String text){
         ResponseEntity<GarryResponse> response
-                = restTemplate.getForEntity(resourceUrl+"message?text="+text, GarryResponse.class);
+                = restTemplate.getForEntity(resourceUrlGarry+"message?text="+text, GarryResponse.class);
         return response.getBody().getMessage();
     }
 }
