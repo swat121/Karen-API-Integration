@@ -13,34 +13,60 @@ public class Service {
     private final HashMap<String, String> resourceUrl;
     private final RestTemplate restTemplate;
     private ResponseEntity<GarryResponse> response;
-    private boolean isBacklight = false;
-    private boolean isRelay = false;
 
-    public String request(String name, String key, String text){
+    public String request(String name, String key){
         try {
             switch (key) {
-                case "temperature":
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + key, GarryResponse.class);
-                    return response.getBody().getTemperature();
-                case "backlight":
-                    isBacklight = !isBacklight;
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + "setting?"+key+"="+isBacklight, GarryResponse.class);
-                    return response.getBody().getBacklight();
-                case "relay":
-                    isRelay = !isRelay;
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + "setting?"+key+"="+isRelay, GarryResponse.class);
-                    return response.getBody().getRelay();
-                case "message":
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + key + "?text="+text,GarryResponse.class);
-                    return response.getBody().getMessage();
                 case "help":
                     response = restTemplate.getForEntity(resourceUrl.get(name) + key, GarryResponse.class);
                     return response.getBody().getName() +": "+ response.getBody().getHelp();
+                case "status":
+                    ResponseEntity<String> status
+                         = restTemplate.getForEntity(resourceUrl.get(name) + key, String.class);
+                    return status.getBody();
                 default:
                     return "Такое еще не придумал";
             }
         } catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
+        }
+    }
+    public String message(String name, String key, String text){
+        response = restTemplate.getForEntity(resourceUrl.get(name) + key + "?text="+text,GarryResponse.class);
+        return response.getBody().getMessage();
+    }
+    public String setting(String name, String key) {
+        try {
+            response = restTemplate.getForEntity(resourceUrl.get(name)+key, GarryResponse.class);
+        }catch (Exception e){
+            return "Проверьте подключение ESP к сети: " + e.getMessage();
+        }
+        switch (key){
+            case "relay1":
+                return response.getBody().getRelay1();
+            case "relay2":
+                return response.getBody().getRelay2();
+            case "relay3":
+                return response.getBody().getRelay3();
+            case "backlight":
+                return response.getBody().getBacklight();
+            default:
+                return "Такое еще не придумал";
+        }
+    }
+    public String sensor(String name, String key) {
+        try {
+            response = restTemplate.getForEntity(resourceUrl.get(name)+key, GarryResponse.class);
+        }catch (Exception e){
+            return "Проверьте подключение ESP к сети: " + e.getMessage();
+        }
+        switch (key){
+            case "temperature":
+                return response.getBody().getTemperature();
+            case "light":
+                return response.getBody().getLight();
+            default:
+                return "Такое еще не придумал";
         }
     }
 }

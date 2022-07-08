@@ -26,12 +26,20 @@ public class MainController {
     @SneakyThrows
     @GetMapping("/{name}/{key}")
     public String data(@PathVariable(value = "key") String key, @PathVariable(value = "name") String name) {
-        return service.request(name, key, "");
+        return service.request(name, key);
     }
 
     @GetMapping("/{name}/message/{text}")
     public String message(@PathVariable(value = "text") String text, @PathVariable(value = "name") String name) {
-        return service.request(name, "message", text);
+        return service.message(name, "message", text);
+    }
+    @GetMapping("/{name}/setting/{key}")
+    public String setting(@PathVariable(value = "name") String name, @PathVariable(value = "key") String key){
+        return service.setting(name,key);
+    }
+    @GetMapping("/{name}/sensor/{key}")
+    public String sensor(@PathVariable(value = "name") String name, @PathVariable(value = "key") String key){
+        return service.sensor(name,key);
     }
 }
 
