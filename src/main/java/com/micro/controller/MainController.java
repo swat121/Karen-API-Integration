@@ -37,18 +37,28 @@ public class MainController {
                 case "backlightOff":
                     response = restTemplate.getForEntity(resourceUrlGarry + "setting?backlight=off", GarryResponse.class);
                     return response.getBody().getBacklight();
+                case "relay":
+                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
+                    return response.getBody().getRelay();
+                case "help":
+                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
+                    return response.getBody().getName() +": "+ response.getBody().getHelp();
                 default:
                     return "Такое еще не придумал";
             }
         } catch (Exception e){
-            return "Проверьте подключение ESP к сети";
+            return "Проверьте подключение ESP к сети: " + e.getMessage();
         }
     }
     @GetMapping("/garry/message/{text}")
-    public String message(@PathVariable(value = "text") String text){
-        ResponseEntity<GarryResponse> response
-                = restTemplate.getForEntity(resourceUrlGarry+"message?text="+text, GarryResponse.class);
-        return response.getBody().getMessage();
+    public String message(@PathVariable(value = "text") String text) {
+        try {
+            ResponseEntity<GarryResponse> response
+                    = restTemplate.getForEntity(resourceUrlGarry + "message?text=" + text, GarryResponse.class);
+            return response.getBody().getMessage();
+        }catch (Exception e){
+            return "Проверьте подключение ESP к сети: " + e.getMessage();
+        }
     }
 }
 
