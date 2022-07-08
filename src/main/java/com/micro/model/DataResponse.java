@@ -2,10 +2,9 @@ package com.micro.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 @Data
-public class GarryResponse {
+public class DataResponse {
     private String name;
     @JsonProperty("temp")
     private String temperature;

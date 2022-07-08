@@ -1,6 +1,6 @@
 package com.micro.service;
 
-import com.micro.model.GarryResponse;
+import com.micro.model.DataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -12,13 +12,13 @@ import java.util.HashMap;
 public class Service {
     private final HashMap<String, String> resourceUrl;
     private final RestTemplate restTemplate;
-    private ResponseEntity<GarryResponse> response;
+    private ResponseEntity<DataResponse> response;
 
     public String request(String name, String key){
         try {
             switch (key) {
                 case "help":
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + key, GarryResponse.class);
+                    response = restTemplate.getForEntity(resourceUrl.get(name) + key, DataResponse.class);
                     return response.getBody().getName() +": "+ response.getBody().getHelp();
                 case "status":
                     ResponseEntity<String> status
@@ -32,12 +32,12 @@ public class Service {
         }
     }
     public String message(String name, String key, String text){
-        response = restTemplate.getForEntity(resourceUrl.get(name) + key + "?text="+text,GarryResponse.class);
+        response = restTemplate.getForEntity(resourceUrl.get(name) + key + "?text="+text, DataResponse.class);
         return response.getBody().getMessage();
     }
     public String setting(String name, String key) {
         try {
-            response = restTemplate.getForEntity(resourceUrl.get(name)+key, GarryResponse.class);
+            response = restTemplate.getForEntity(resourceUrl.get(name)+key, DataResponse.class);
         }catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
         }
@@ -56,7 +56,7 @@ public class Service {
     }
     public String sensor(String name, String key) {
         try {
-            response = restTemplate.getForEntity(resourceUrl.get(name)+key, GarryResponse.class);
+            response = restTemplate.getForEntity(resourceUrl.get(name)+key, DataResponse.class);
         }catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
         }

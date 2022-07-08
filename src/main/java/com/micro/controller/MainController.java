@@ -1,20 +1,12 @@
 package com.micro.controller;
 
 
-import com.micro.model.GarryResponse;
-
 import com.micro.service.Service;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.ConnectException;
-import java.rmi.ConnectIOException;
 
 
 @RestController
