@@ -1,9 +1,10 @@
 package com.micro.controller;
 
 
-
 import com.micro.model.GarryResponse;
 
+import com.micro.service.Service;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.ResponseEntity;
@@ -17,48 +18,20 @@ import java.rmi.ConnectIOException;
 
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MainController {
 
-    private final String resourceUrlGarry;
-    private final RestTemplate restTemplate;
+    public Service service;
+
     @SneakyThrows
-    @GetMapping("/garry/{key}")
-    public String data(@PathVariable(value="key") String key){
-        try {
-        ResponseEntity<GarryResponse> response;
-            switch (key) {
-                case "temperature":
-                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
-                    return response.getBody().getTemperature();
-                case "backlightOn":
-                    response = restTemplate.getForEntity(resourceUrlGarry + "setting?backlight=on", GarryResponse.class);
-                    return response.getBody().getBacklight();
-                case "backlightOff":
-                    response = restTemplate.getForEntity(resourceUrlGarry + "setting?backlight=off", GarryResponse.class);
-                    return response.getBody().getBacklight();
-                case "relay":
-                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
-                    return response.getBody().getRelay();
-                case "help":
-                    response = restTemplate.getForEntity(resourceUrlGarry + key, GarryResponse.class);
-                    return response.getBody().getName() +": "+ response.getBody().getHelp();
-                default:
-                    return "Такое еще не придумал";
-            }
-        } catch (Exception e){
-            return "Проверьте подключение ESP к сети: " + e.getMessage();
-        }
+    @GetMapping("/{name}/{key}")
+    public String data(@PathVariable(value = "key") String key, @PathVariable(value = "name") String name) {
+        return service.request(name, key, "");
     }
-    @GetMapping("/garry/message/{text}")
-    public String message(@PathVariable(value = "text") String text) {
-        try {
-            ResponseEntity<GarryResponse> response
-                    = restTemplate.getForEntity(resourceUrlGarry + "message?text=" + text, GarryResponse.class);
-            return response.getBody().getMessage();
-        }catch (Exception e){
-            return "Проверьте подключение ESP к сети: " + e.getMessage();
-        }
+
+    @GetMapping("/{name}/message/{text}")
+    public String message(@PathVariable(value = "text") String text, @PathVariable(value = "name") String name) {
+        return service.request(name, "message", text);
     }
 }
 
