@@ -6,15 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
+import java.util.Map;
 
-@Configuration
+@Data
+@ConfigurationProperties(prefix = "service")
 public class UrlConfig {
-    @Bean
-    public HashMap<String, String> resourceUrl(){
-        HashMap<String, String> name = new HashMap<>();
-        name.put("garry", "http://192.168.0.100:80/");
-        name.put("patric","");
-        name.put("spongebob","");
-        return name;
-    };
+    private Map<String,String> resourceUrl;
 }

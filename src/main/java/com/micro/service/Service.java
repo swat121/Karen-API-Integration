@@ -1,5 +1,6 @@
 package com.micro.service;
 
+import com.micro.config.UrlConfig;
 import com.micro.model.DataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,8 @@ import java.util.HashMap;
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class Service {
-    private final HashMap<String, String> resourceUrl;
+    //private final HashMap<String, String> resourceUrl;
+    private final UrlConfig urlConfig;
     private final RestTemplate restTemplate;
     private ResponseEntity<DataResponse> response;
 
@@ -18,11 +20,11 @@ public class Service {
         try {
             switch (key) {
                 case "help":
-                    response = restTemplate.getForEntity(resourceUrl.get(name) + key, DataResponse.class);
+                    response = restTemplate.getForEntity(urlConfig.getResourceUrl().get(name) + key, DataResponse.class);
                     return response.getBody().getName() +": "+ response.getBody().getHelp();
                 case "status":
                     ResponseEntity<String> status
-                         = restTemplate.getForEntity(resourceUrl.get(name) + key, String.class);
+                         = restTemplate.getForEntity(urlConfig.getResourceUrl().get(name) + key, String.class);
                     return status.getBody();
                 default:
                     return "Такое еще не придумал";
@@ -32,12 +34,12 @@ public class Service {
         }
     }
     public String message(String name, String key, String text){
-        response = restTemplate.getForEntity(resourceUrl.get(name) + key + "?text="+text, DataResponse.class);
+        response = restTemplate.getForEntity(urlConfig.getResourceUrl().get(name) + key + "?text="+text, DataResponse.class);
         return response.getBody().getMessage();
     }
     public String setting(String name, String key) {
         try {
-            response = restTemplate.getForEntity(resourceUrl.get(name)+key, DataResponse.class);
+            response = restTemplate.getForEntity(urlConfig.getResourceUrl().get(name)+key, DataResponse.class);
         }catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
         }
@@ -56,7 +58,7 @@ public class Service {
     }
     public String sensor(String name, String key) {
         try {
-            response = restTemplate.getForEntity(resourceUrl.get(name)+key, DataResponse.class);
+            response = restTemplate.getForEntity(urlConfig.getResourceUrl().get(name)+key, DataResponse.class);
         }catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
         }
