@@ -11,5 +11,5 @@ import java.util.Map;
 @Data
 @ConfigurationProperties(prefix = "service")
 public class UrlConfig {
-    private Map<String,String> resourceUrl;
+    private Map<String,String> resource;
 }
