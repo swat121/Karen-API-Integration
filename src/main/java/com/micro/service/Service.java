@@ -1,6 +1,7 @@
 package com.micro.service;
 
 import com.micro.config.UrlConfig;
+import com.micro.exception.ApiRequestException;
 import com.micro.model.DataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class Service {
                          = restTemplate.getForEntity(urlConfig.getResource().get(name) + key, String.class);
                     return status.getBody();
                 default:
-                    return "Такое еще не придумал";
+                     throw new ApiRequestException("Opps");
             }
         } catch (Exception e){
             return "Проверьте подключение ESP к сети: " + e.getMessage();
@@ -53,7 +54,7 @@ public class Service {
             case "backlight":
                 return response.getBody().getBacklight();
             default:
-                return "Такое еще не придумал";
+                throw new ApiRequestException("Opps");
         }
     }
     public String sensor(String name, String key) {
@@ -68,7 +69,7 @@ public class Service {
             case "light":
                 return response.getBody().getLight();
             default:
-                return "Такое еще не придумал";
+                throw new ApiRequestException("Opps");
         }
     }
 }
