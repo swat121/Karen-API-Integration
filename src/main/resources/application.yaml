@@ -1,5 +1,5 @@
 service:
   resource:
     garry: "http://192.168.0.100:80/"
-    patric: ""
+    patric: "http://192.168.0.101:80/"
     spongebob: ""
