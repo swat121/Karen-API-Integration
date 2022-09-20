@@ -1,6 +1,6 @@
 package com.micro.service;
 
-import com.micro.cipher.AesCipherManager;
+import com.micro.config.BotConfig;
 import com.micro.model.BotResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,14 +10,14 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @RequiredArgsConstructor
 public class BotService {
+    private final BotConfig botConfig;
     private final RestTemplate restTemplate;
     private final String urlTelegram = "https://api.telegram.org/bot";
-    private final AesCipherManager aesCipherManager;
     public String sendMessage(String message){
         BotResponse botResponse = restTemplate.getForEntity(urlTelegram +
-                aesCipherManager.decrypt("token.key") +
+                botConfig.getToken() +
                 "/sendMessage?chat_id=" +
-                aesCipherManager.decrypt("chat.key")+
+                botConfig.getChat()+
                 "&text="+message,BotResponse.class).getBody();
         return botResponse.getOk();
     }
