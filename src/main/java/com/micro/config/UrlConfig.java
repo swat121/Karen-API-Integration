@@ -12,5 +12,4 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "service")
 public class UrlConfig {
     private Map<String,String> resource;
-    private Map<String, Map<String,String>> bot;
 }

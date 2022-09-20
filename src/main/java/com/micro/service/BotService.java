@@ -1,23 +1,23 @@
 package com.micro.service;
 
-import com.micro.config.UrlConfig;
+import com.micro.cipher.AesCipherManager;
 import com.micro.model.BotResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class BotService {
-    private final UrlConfig urlConfig;
     private final RestTemplate restTemplate;
-    private String urlTelegram = "https://api.telegram.org/bot";
-
+    private final String urlTelegram = "https://api.telegram.org/bot";
+    private final AesCipherManager aesCipherManager;
     public String sendMessage(String message){
-        BotResponse botResponse = restTemplate.getForEntity(urlTelegram+urlConfig.getBot().get("test").get("token") +
-                "/sendMessage?chat_id="+urlConfig.getBot().get("test").get("chatId")+
+        BotResponse botResponse = restTemplate.getForEntity(urlTelegram +
+                aesCipherManager.decrypt("token.key") +
+                "/sendMessage?chat_id=" +
+                aesCipherManager.decrypt("chat.key")+
                 "&text="+message,BotResponse.class).getBody();
         return botResponse.getOk();
     }
