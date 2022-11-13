@@ -33,5 +33,9 @@ public class MainController {
     public String sensor(@PathVariable(value = "name") String name, @PathVariable(value = "key") String key){
         return service.sensor(name,key);
     }
+    @GetMapping("/ping")
+    public String ping(){
+        return "pong";
+    }
 }
 
