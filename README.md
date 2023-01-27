@@ -36,8 +36,8 @@ ___
 ___
 Clone repository:
 ```cmd
-git clone https://github.com/swat121/karen.git
-cd karen
+git clone https://github.com/swat121/Karen-Api.git
+cd Karen-Api
 ```
 Build project:
 ```cmd
@@ -46,7 +46,7 @@ mvn clean package [or mvn package -DskipTests]
 ```
 Launch jar file:
 ```cmd
-java -jar Karen-0.0.1-SNAPSHOT.jar
+java -jar Karen-Api-0.0.1-SNAPSHOT.jar
 ```
 ## Instalation and running (docker)
 ___
@@ -77,3 +77,9 @@ services:
     ports:
       - 8080:8080
 ```
+
+### Reference
+___
++ [Karen-Bot](https://github.com/swat121/Karen-Bot)
++ [Karen-Data](https://github.com/swat121/Karen-Data)
++ [Discovery-service](https://github.com/swat121/Discovery-Service)
