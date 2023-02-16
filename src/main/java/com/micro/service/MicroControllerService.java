@@ -40,30 +40,22 @@ public class MicroControllerService {
     public String setting(String name, String key) {
         LOG.info("======================== Micro controller service: setting - " + name + key + " ========================");
         DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key, DataResponse.class);
-        switch (key) {
-            case "relay1":
-                return dataResponse.getRelay1();
-            case "relay2":
-                return dataResponse.getRelay2();
-            case "relay3":
-                return dataResponse.getRelay3();
-            case "backlight":
-                return dataResponse.getBacklight();
-            default:
-                throw new ApiRequestException(String.format("Command not found: [%s]", key));
-        }
+        return switch (key) {
+            case "relay1" -> dataResponse.getRelay1();
+            case "relay2" -> dataResponse.getRelay2();
+            case "relay3" -> dataResponse.getRelay3();
+            case "backlight" -> dataResponse.getBacklight();
+            default -> throw new ApiRequestException(String.format("Command not found: [%s]", key));
+        };
     }
 
     public String sensor(String name, String key) {
         LOG.info("======================== Micro controller service: sensor - " + name + key + " ========================");
         DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key, DataResponse.class);
-        switch (key) {
-            case "temperature":
-                return dataResponse.getTemperature();
-            case "light":
-                return dataResponse.getLight();
-            default:
-                throw new ApiRequestException("Opps");
-        }
+        return switch (key) {
+            case "temperature" -> dataResponse.getTemperature();
+            case "light" -> dataResponse.getLight();
+            default -> throw new ApiRequestException("Opps");
+        };
     }
 }
