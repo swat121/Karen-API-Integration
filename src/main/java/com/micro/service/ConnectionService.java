@@ -12,10 +12,10 @@ public class ConnectionService {
     private final RestTemplate restTemplate;
 
     public <T> T getResponseFromService(String name, String url, Class<T> responseType) {
-        return restTemplate.getForEntity("https://" + name + url, responseType).getBody();
+        return restTemplate.getForEntity("http://" + name + url, responseType).getBody();
     }
 
     public String postRequestForService(String name, String url, HttpEntity<MultiValueMap<String, Integer>> request) {
-        return restTemplate.postForEntity("https://" + name + url, request, String.class).getBody();
+        return restTemplate.postForEntity("http://" + name + url, request, String.class).getBody();
     }
 }
