@@ -1,5 +1,6 @@
 package com.micro.service;
 
+import com.micro.dto.Client;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +40,7 @@ public class ConnectionService {
     }
 
     @SneakyThrows
-    public String postRequestForService(String name, String url, HttpEntity<MultiValueMap<String, String>> request) {
+    public String postRequestForService(String name, String url, HttpEntity<Client> request) {
         LOG.info("======================== Connection service: POST " + name + url + request + " ========================");
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);
