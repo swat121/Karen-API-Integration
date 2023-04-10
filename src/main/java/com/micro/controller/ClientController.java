@@ -29,6 +29,16 @@ public class ClientController {
     @PostMapping("/clients")
     public String addIpAddress(@RequestBody Client client) {
         LOG.info("======================== ConnectController: PostMapping - addIpAddress ========================");
+        Client oldClient = connectionService.getResponseFromService("karen-data", "/clients/" + client.getName(),  Client.class);
+        if (oldClient != null) {
+            if (oldClient.getSsid().equals(client.getSsid()) && oldClient.getIp().equals(client.getIp())) {
+                return "Data has not update because old data equals new data";
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Client> request = new HttpEntity<>(client, headers);
+            return connectionService.postRequestForService("karen-data", "/client/update", request);
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
