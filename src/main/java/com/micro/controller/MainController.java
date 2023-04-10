@@ -39,10 +39,5 @@ public class MainController {
         LOG.info("======================== MainController: GetMapping - sensor " + name + key + " ========================");
         return microControllerService.sensor(name,key);
     }
-    @GetMapping("/ping")
-    public String ping(){
-        LOG.info("======================== MainController: GetMapping - ping ========================");
-        return "pong";
-    }
 }
 

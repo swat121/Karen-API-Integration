@@ -20,11 +20,11 @@ public class MicroControllerService {
         switch (key) {
             case "help":
                 LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + key + " ===========");
-                DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key, DataResponse.class);
+                DataResponse dataResponse = connectionService.getResponseFromMicro(urlConfig.getResource().get(name), key, DataResponse.class);
                 return dataResponse.getName() + ": " + dataResponse.getHelp();
             case "status":
                 LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + key + " ===========");
-                return connectionService.getResponseFromService(urlConfig.getResource().get(name), key, String.class);
+                return connectionService.getResponseFromMicro(urlConfig.getResource().get(name), key, String.class);
             default:
                 LOG.info("=========== Micro controller service: get " + key + " command not found ===========");
                 throw new ApiRequestException(String.format("Command not found: [%s]", key));
@@ -33,13 +33,13 @@ public class MicroControllerService {
 
     public String message(String name, String key, String text) {
         LOG.info("======================== Micro controller service: message " + key + " response from service - " + name + key + " ========================");
-        DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key + "?text=" + text, DataResponse.class);
+        DataResponse dataResponse = connectionService.getResponseFromMicro(urlConfig.getResource().get(name), key + "?text=" + text, DataResponse.class);
         return dataResponse.getMessage();
     }
 
     public String setting(String name, String key) {
         LOG.info("======================== Micro controller service: setting - " + name + key + " ========================");
-        DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key, DataResponse.class);
+        DataResponse dataResponse = connectionService.getResponseFromMicro(urlConfig.getResource().get(name), key, DataResponse.class);
         return switch (key) {
             case "relay1" -> dataResponse.getRelay1();
             case "relay2" -> dataResponse.getRelay2();
@@ -51,7 +51,7 @@ public class MicroControllerService {
 
     public String sensor(String name, String key) {
         LOG.info("======================== Micro controller service: sensor - " + name + key + " ========================");
-        DataResponse dataResponse = connectionService.getResponseFromService(urlConfig.getResource().get(name), key, DataResponse.class);
+        DataResponse dataResponse = connectionService.getResponseFromMicro(urlConfig.getResource().get(name), key, DataResponse.class);
         return switch (key) {
             case "temperature" -> dataResponse.getTemperature();
             case "light" -> dataResponse.getLight();
