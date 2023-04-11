@@ -20,7 +20,7 @@ public class MainController {
     @SneakyThrows
     @GetMapping("/{name}/{key}")
     public String data(@PathVariable(value = "key") String key, @PathVariable(value = "name") String name) {
-        LOG.info("======================== MainController: GetMapping - " + name + key + " ========================");
+        LOG.info("======================== MainController: GetMapping - " + name + " | " + key + " ========================");
         return microControllerService.request(name, key);
     }
 
@@ -31,18 +31,13 @@ public class MainController {
     }
     @GetMapping("/{name}/setting/{key}")
     public String setting(@PathVariable(value = "name") String name, @PathVariable(value = "key") String key){
-        LOG.info("======================== MainController: GetMapping - setting " + name + key + " ========================");
+        LOG.info("======================== MainController: GetMapping - setting " + name + " | " + key + " ========================");
         return microControllerService.setting(name,key);
     }
     @GetMapping("/{name}/sensor/{key}")
     public String sensor(@PathVariable(value = "name") String name, @PathVariable(value = "key") String key){
-        LOG.info("======================== MainController: GetMapping - sensor " + name + key + " ========================");
+        LOG.info("======================== MainController: GetMapping - sensor " + name + " | " + key + " ========================");
         return microControllerService.sensor(name,key);
-    }
-    @GetMapping("/ping")
-    public String ping(){
-        LOG.info("======================== MainController: GetMapping - ping ========================");
-        return "pong";
     }
 }
 
