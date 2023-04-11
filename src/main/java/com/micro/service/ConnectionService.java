@@ -21,18 +21,18 @@ public class ConnectionService {
     private static final Logger LOG = LogManager.getRootLogger();
 
     public <T> T getResponseFromMicro(String name, String url, Class<T> responseType) {
-        LOG.info("======================== Connection service: GET " + name + url + responseType + " ========================");
+        LOG.info("======================== Connection service: GET " + name + " | " + url + " | " + responseType + " ========================");
         return restTemplate.getForEntity("http://" + name + url, responseType).getBody();
     }
 
     public String postRequestForMicro(String name, String url, HttpEntity<MultiValueMap<String, String>> request) {
-        LOG.info("======================== Connection service: POST " + name + url + request + " ========================");
+        LOG.info("======================== Connection service: POST " + name + " | " + url + " | " + request + " ========================");
         return restTemplate.postForEntity("http://" + name + url, request, String.class).getBody();
     }
 
     @SneakyThrows
     public <T> T getResponseFromService(String name, String url, Class<T> responseType) {
-        LOG.info("======================== Connection service: GET " + name + url + responseType + " ========================");
+        LOG.info("======================== Connection service: GET " + name + " | " + url + " | " + responseType + " ========================");
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);
             return restTemplate.getForEntity(backendUrl, responseType).getBody();
@@ -41,7 +41,7 @@ public class ConnectionService {
 
     @SneakyThrows
     public String postRequestForService(String name, String url, HttpEntity<Client> request) {
-        LOG.info("======================== Connection service: POST " + name + url + request + " ========================");
+        LOG.info("======================== Connection service: POST " + name + " | " + url + " | " + request + " ========================");
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);
             String response = restTemplate.postForEntity(backendUrl, request, String.class).getBody();

@@ -15,15 +15,15 @@ public class MicroControllerService {
     private static final Logger LOG = LogManager.getRootLogger();
 
     public String request(String name, String key) {
-        LOG.info("======================== Micro controller service: request - " + name + key + " ========================");
+        LOG.info("======================== Micro controller service: request - " + name + " | " + key + " ========================");
         String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
         switch (key) {
             case "help":
-                LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + key + " ===========");
+                LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + " | " + key + " ===========");
                 DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key, DataResponse.class);
                 return dataResponse.getName() + ": " + dataResponse.getHelp();
             case "status":
-                LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + key + " ===========");
+                LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + " | " + key + " ===========");
                 return connectionService.getResponseFromMicro(ip + ":80/", key, String.class);
             default:
                 LOG.info("=========== Micro controller service: get " + key + " command not found ===========");
@@ -32,14 +32,14 @@ public class MicroControllerService {
     }
 
     public String message(String name, String key, String text) {
-        LOG.info("======================== Micro controller service: message " + key + " response from service - " + name + key + " ========================");
+        LOG.info("======================== Micro controller service: message " + key + " response from service - " + name + " | " + key + " ========================");
         String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key + "?text=" + text, DataResponse.class);
         return dataResponse.getMessage();
     }
 
     public String setting(String name, String key) {
-        LOG.info("======================== Micro controller service: setting - " + name + key + " ========================");
+        LOG.info("======================== Micro controller service: setting - " + name + " | " + key + " ========================");
         String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key, DataResponse.class);
         return switch (key) {
@@ -52,7 +52,7 @@ public class MicroControllerService {
     }
 
     public String sensor(String name, String key) {
-        LOG.info("======================== Micro controller service: sensor - " + name + key + " ========================");
+        LOG.info("======================== Micro controller service: sensor - " + name + " | " + key + " ========================");
         String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key, DataResponse.class);
         return switch (key) {
