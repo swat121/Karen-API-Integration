@@ -12,7 +12,7 @@ public class ClientService {
     private String clientEndPoint;
 
     public boolean isClientInDb(Client client) {
-        Client oldClient = connectionService.getResponseFromService("karen-data", "/clients/" + client.getName(), Client.class);
+        Client oldClient = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/clients/" + client.getName(), Client.class);
         clientEndPoint = (oldClient != null) ? "/client/update" : "/clients";
         return oldClient != null &&
                 oldClient.getSsid().equals(client.getSsid()) &&

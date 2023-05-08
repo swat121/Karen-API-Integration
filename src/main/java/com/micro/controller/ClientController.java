@@ -3,6 +3,7 @@ package com.micro.controller;
 import com.micro.dto.Client;
 import com.micro.service.ClientService;
 import com.micro.service.ConnectionService;
+import com.micro.service.Services;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,6 @@ public class ClientController {
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return clientService.isClientInDb(client) ?
                 "Data has not update because old data equals new data" :
-                connectionService.postRequestForService("karen-data", clientService.getClientEndPoint(), request);
+                connectionService.postRequestForService(Services.KAREN_DATA.getTitle(), clientService.getClientEndPoint(), request);
     }
 }
