@@ -12,7 +12,7 @@ public class ClientService {
     private final ConnectionService connectionService;
     private String clientEndPoint;
 
-    public boolean isClientInDb(Client client) {
+    public boolean isOldClientInDb(Client client) {
         Client oldClient = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/clients/" + client.getName(), Client.class);
         clientEndPoint = (oldClient != null) ? "/client/update" : "/clients";
         return oldClient != null &&

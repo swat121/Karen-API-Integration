@@ -36,7 +36,7 @@ public class ClientController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        if (clientService.isClientInDb(client)) {
+        if (clientService.isOldClientInDb(client)) {
             connectionService.postRequestForService(Services.KAREN_BOT.getTitle(), "/api/v1/bot/client/connect", request);
             return "Data has not update because old data equals new data";
         }
