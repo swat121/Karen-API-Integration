@@ -40,7 +40,7 @@ public class ConnectionService {
     }
 
     @SneakyThrows
-    public String postRequestForService(String name, String url, HttpEntity<Client> request) {
+    public <T> String postRequestForService(String name, String url, HttpEntity<T> request) {
         LOG.info("======================== Connection service: POST " + name + " | " + url + " | " + request + " ========================");
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);

@@ -1,6 +1,7 @@
 package com.micro.service;
 
 import com.micro.dto.Client;
+import com.micro.enums.Services;
 import com.micro.exception.ApiRequestException;
 import com.micro.model.DataResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +13,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MicroControllerService {
     private final ConnectionService connectionService;
+    private final ClientService clientService;
     private static final Logger LOG = LogManager.getRootLogger();
 
     public String request(String name, String key) {
         LOG.info("======================== Micro controller service: request - " + name + " | " + key + " ========================");
-        String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
+        String ip = clientService.getIpOfAvailableClient(name);
         switch (key) {
             case "help":
                 LOG.info("=========== Micro controller service: get " + key + " response from service - " + name + " | " + key + " ===========");
@@ -33,14 +35,14 @@ public class MicroControllerService {
 
     public String message(String name, String key, String text) {
         LOG.info("======================== Micro controller service: message " + key + " response from service - " + name + " | " + key + " ========================");
-        String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
+        String ip = clientService.getIpOfAvailableClient(name);
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key + "?text=" + text, DataResponse.class);
         return dataResponse.getMessage();
     }
 
     public String setting(String name, String key) {
         LOG.info("======================== Micro controller service: setting - " + name + " | " + key + " ========================");
-        String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
+        String ip = clientService.getIpOfAvailableClient(name);
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key, DataResponse.class);
         return switch (key) {
             case "relay1" -> dataResponse.getRelay1();
@@ -53,7 +55,7 @@ public class MicroControllerService {
 
     public String sensor(String name, String key) {
         LOG.info("======================== Micro controller service: sensor - " + name + " | " + key + " ========================");
-        String ip = connectionService.getResponseFromService("karen-data", "/clients/" + name, Client.class).getIp();
+        String ip = clientService.getIpOfAvailableClient(name);
         DataResponse dataResponse = connectionService.getResponseFromMicro(ip + ":80/", key, DataResponse.class);
         return switch (key) {
             case "temperature" -> dataResponse.getTemperature();
