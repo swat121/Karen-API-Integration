@@ -2,6 +2,7 @@ package com.micro.service;
 
 import com.micro.dto.Client;
 import com.micro.enums.Services;
+import com.micro.exception.ApiRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,13 @@ public class ClientService {
 
     public String getClientEndPoint() {
         return clientEndPoint;
+    }
+
+    public String getIpOfAvailableClient(String name) {
+        Client client = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/clients/" + name, Client.class);
+        if (client == null) {
+            throw new ApiRequestException(String.format("Client not found: [%s]", name));
+        }
+        return client.getIp();
     }
 }
