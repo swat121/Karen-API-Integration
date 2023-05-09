@@ -1,7 +1,7 @@
 package com.micro.service;
 
 import com.micro.dto.Client;
-import lombok.AllArgsConstructor;
+import com.micro.enums.Services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

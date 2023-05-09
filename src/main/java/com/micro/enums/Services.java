@@ -1,8 +1,8 @@
-package com.micro.service;
+package com.micro.enums;
 
 public enum Services {
     KAREN_DATA("karen-data"),
-    KAREN_BOT("karenbot"),
+    KAREN_BOT("karen-bot"),
     ;
 
     private final String title;
