@@ -59,12 +59,13 @@ public class DynamicSchedulerService {
         microControllerService.sensor("patric", "temperature");
     }
 
-    public void scheduleOneTimeTask() {
+    public void scheduleOneTimeTask(int hours, int minute) {
+        int plannedTime = hours * 60 + minute;
         Calendar currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.MINUTE, 2);
-        Date twoHoursLater = currentDate.getTime();
+        currentDate.add(Calendar.MINUTE, plannedTime);
+        Date laterDate = currentDate.getTime();
 
-        threadPoolTaskScheduler.schedule(this::executeOneTimeTask, twoHoursLater);
+        threadPoolTaskScheduler.schedule(this::executeOneTimeTask, laterDate);
     }
 
     private void executeOneTimeTask() {

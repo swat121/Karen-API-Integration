@@ -25,8 +25,8 @@ public class ScheduleController {
     }
 
     @PostMapping("/api/v1/schedule/planned")
-    public ResponseEntity<String> start() {
-        dynamicSchedulerService.scheduleOneTimeTask();
+    public ResponseEntity<String> plannedTask(@RequestParam(defaultValue = "0") int hours, @RequestParam(defaultValue = "0") int minute) {
+        dynamicSchedulerService.scheduleOneTimeTask(hours, minute);
         return ResponseEntity.ok("OK");
     }
 }
