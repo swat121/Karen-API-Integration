@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -20,14 +22,8 @@ public class ConnectionService {
     private final LoadBalancerClient loadBalancerClient;
     private static final Logger LOG = LogManager.getRootLogger();
 
-    public <T> T getResponseFromMicro(String name, String url, Class<T> responseType) {
-        LOG.info("======================== Connection service: GET " + name + " | " + url + " | " + responseType + " ========================");
-        return restTemplate.getForEntity("http://" + name + url, responseType).getBody();
-    }
-
-    public String postRequestForMicro(String name, String url, HttpEntity<MultiValueMap<String, String>> request) {
-        LOG.info("======================== Connection service: POST " + name + " | " + url + " | " + request + " ========================");
-        return restTemplate.postForEntity("http://" + name + url, request, String.class).getBody();
+    public <T> T exchange(String url, HttpMethod method, @Nullable HttpEntity<MultiValueMap<String, String>> requestEntity, Class<T> responseType) {
+        return restTemplate.exchange("http://" + url, method, requestEntity, responseType).getBody();
     }
 
     @SneakyThrows
