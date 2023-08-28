@@ -16,7 +16,7 @@ public class ClientService {
 
     public boolean isOldClientInDb(Client client) {
         Client oldClient = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/api/v1/clients/" + client.getName(), Client.class);
-        clientEndPoint = (oldClient != null) ? "/client/update" : "/clients";
+        clientEndPoint = (oldClient != null) ? "/api/v1/client/update" : "/api/v1/clients";
         return oldClient != null &&
                 oldClient.getSsid().equals(client.getSsid()) &&
                 oldClient.getIp().equals(client.getIp()) &&

@@ -23,14 +23,8 @@ public class ClientController {
     private final ConnectionService connectionService;
     private final ClientService clientService;
 
-    @GetMapping("/ping")
-    public String ping() {
-        LOG.info("======================== ConnectController: GetMapping - ping ========================");
-        return "pong";
-    }
-
     @SneakyThrows
-    @PostMapping("/clients")
+    @PostMapping("/api/v1/clients")
     public String addIpAddress(@RequestBody Client client) {
         LOG.info("======================== ConnectController: PostMapping - addIpAddress ========================");
         HttpHeaders headers = new HttpHeaders();

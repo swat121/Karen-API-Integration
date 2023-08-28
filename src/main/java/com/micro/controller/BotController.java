@@ -20,7 +20,7 @@ public class BotController {
     private final ConnectionService connectionService;
     private static final Logger LOG = LogManager.getRootLogger();
 
-    @GetMapping("/bot/{message}")
+    @GetMapping("/api/v1/bot/{message}")
     public String sendMessage(@PathVariable(value = "message") String message) {
         LOG.info("======================== BotController: GetMapping - " + message + " ========================");
         HttpHeaders headers = new HttpHeaders();
