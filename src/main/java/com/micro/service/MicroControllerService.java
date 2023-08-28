@@ -33,15 +33,15 @@ public class MicroControllerService {
     }
 
     public String makeSensorRequest(String name, String module, String id) {
-        return makeRequest(name, module, id, "sensor", HttpMethod.GET, null);
+        return makeRequest(name, module, id, "sensors", HttpMethod.GET, null);
     }
 
     public String makeTrackerRequest(String name, String module, String id) {
-        return makeRequest(name, module, id, "tracker", HttpMethod.GET, null);
+        return makeRequest(name, module, id, "trackers", HttpMethod.GET, null);
     }
 
     public String makeSwitcherRequest(String name, String module, String id) {
-        return makeRequest(name, module, id, "switcher", HttpMethod.PUT, null);
+        return makeRequest(name, module, id, "switchers", HttpMethod.PUT, null);
     }
 
 

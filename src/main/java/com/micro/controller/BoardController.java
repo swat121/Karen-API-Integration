@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -20,6 +18,16 @@ public class BoardController {
     @GetMapping("/api/v1/{name}/sensors/{module}/{id}")
     public String getDataBySensor(@PathVariable String name, @PathVariable String module, @PathVariable String id){
         return microControllerService.makeSensorRequest(name, module, id);
+    }
+
+    @GetMapping("/api/v1/{name}/trackers/{module}/{id}")
+    public String getDataByTracker(@PathVariable String name, @PathVariable String module, @PathVariable String id){
+        return microControllerService.makeTrackerRequest(name, module, id);
+    }
+
+    @PutMapping("/api/v1/{name}/switchers/{module}/{id}")
+    public String getDataBySwitcher(@PathVariable String name, @PathVariable String module, @PathVariable String id){
+        return microControllerService.makeSwitcherRequest(name, module, id);
     }
 
 //    @SneakyThrows

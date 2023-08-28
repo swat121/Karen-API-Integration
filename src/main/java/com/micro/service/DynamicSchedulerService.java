@@ -55,8 +55,9 @@ public class DynamicSchedulerService {
         }
     }
 
+    //TODO: this example, do not work
     private void temperatureTask() {
-        microControllerService.sensor("patric", "temperature");
+        microControllerService.makeSensorRequest("patric", "temperature", "4321");
     }
 
     public void scheduleOneTimeTask(int hours, int minute) {
@@ -68,6 +69,7 @@ public class DynamicSchedulerService {
         threadPoolTaskScheduler.schedule(this::executeOneTimeTask, laterDate);
     }
 
+    //TODO: this example, do not work
     private void executeOneTimeTask() {
         System.out.println("Задача выполнена!");
     }
