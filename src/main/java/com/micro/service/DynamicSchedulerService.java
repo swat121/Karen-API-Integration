@@ -23,7 +23,7 @@ public class DynamicSchedulerService {
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
     private final ConnectionService connectionService;
-    private final MicroControllerService microControllerService;
+    private final BoardService boardService;
 
     @Async
     public synchronized CompletableFuture<Void> startTask(String taskName, long updateTime) {
@@ -57,7 +57,7 @@ public class DynamicSchedulerService {
 
     //TODO: this example, do not work
     private void temperatureTask() {
-        microControllerService.makeSensorRequest("patric", "temperature", "4321");
+        boardService.makeSensorRequest("patric", "temperature", "4321");
     }
 
     public void scheduleOneTimeTask(int hours, int minute) {

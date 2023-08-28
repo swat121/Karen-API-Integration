@@ -1,12 +1,6 @@
 package com.micro.service;
 
-import com.micro.dto.Client;
-import com.micro.enums.Services;
-import com.micro.exception.ApiRequestException;
-import com.micro.model.DataResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
@@ -16,10 +10,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class MicroControllerService {
+public class BoardService {
     private final ConnectionService connectionService;
     private final ClientService clientService;
-    private static final Logger LOG = LogManager.getRootLogger();
 
     public String makeRequest(String name, String module, String id, String endpoint, HttpMethod method, @Nullable HttpEntity<MultiValueMap<String, String>> requestEntity) {
         String baseUrl = clientService.getIpOfAvailableClient(name) + ":80/api/v1/" + endpoint;
@@ -29,7 +22,7 @@ public class MicroControllerService {
                 .buildAndExpand(module, id)
                 .toUriString();
 
-        return connectionService.exchange(requestUrl, method, requestEntity, String.class);
+        return connectionService.requestForBoard(requestUrl, method, requestEntity, String.class);
     }
 
     public String makeSensorRequest(String name, String module, String id) {
