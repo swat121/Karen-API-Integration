@@ -38,4 +38,13 @@ public class ConnectionService {
             return response + " " + backendInstance.getInstanceId();
         });
     }
+
+    @SneakyThrows
+    public <T> void putRequestForService(String name, String url, HttpEntity<T> request) {
+        loadBalancerClient.execute(name, backendInstance -> {
+            URI backendUrl = backendInstance.getUri().resolve(url);
+            restTemplate.put(String.valueOf(backendUrl), request, String.class);
+            return backendInstance.getInstanceId();
+        });
+    }
 }

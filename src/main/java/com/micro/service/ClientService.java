@@ -5,29 +5,40 @@ import com.micro.enums.Services;
 import com.micro.exception.ApiRequestException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
     private final ConnectionService connectionService;
+    //TODO заменить endpoint /api/v1/bot/client/connect -> /api/v1/bot/client/connected
     @Getter
-    private String clientEndPoint;
+    private String clientEndPointForKarenBot = "/api/v1/bot/client/connect";
 
-    public boolean isOldClientInDb(Client client) {
-        Client oldClient = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/api/v1/clients/" + client.getName(), Client.class);
-        clientEndPoint = (oldClient != null) ? "/api/v1/client/update" : "/api/v1/clients";
-        return oldClient != null &&
-                oldClient.getSsid().equals(client.getSsid()) &&
-                oldClient.getIp().equals(client.getIp()) &&
-                oldClient.getMac().equals(client.getMac());
+    private HttpEntity<Client> makeClientRequest(Client client) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(client, headers);
     }
 
-    public String getIpOfAvailableClient(String name) {
-        Client client = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/ap1/v1/clients/" + name, Client.class);
-        if (client == null) {
-            throw new ApiRequestException(String.format("Client not found: [%s]", name));
+    public void checkClientAlreadyExist(Client client) {
+        Client clientData = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/api/v1/clients/" + client.getName(), Client.class);
+        if (clientData == null) {
+            String response = connectionService.postRequestForService(Services.KAREN_DATA.getTitle(), "/api/v1/clients", makeClientRequest(client));
+            clientEndPointForKarenBot = "/api/v1/clients";
+        } else {
+            List<String> differences = clientData.getDifferences(client);
+            if(differences != null) {
+                //TODO add log
+                connectionService.putRequestForService(Services.KAREN_DATA.getTitle(), "/api/v1/client/update", makeClientRequest(client));
+                clientEndPointForKarenBot = "/api/v1/client/update";
+            }
         }
-        return client.getIp();
+        connectionService.postRequestForService(Services.KAREN_BOT.getTitle(), clientEndPointForKarenBot, makeClientRequest(client));
     }
 }

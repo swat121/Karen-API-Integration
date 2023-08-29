@@ -20,21 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ClientController {
     private static final Logger LOG = LogManager.getRootLogger();
-    private final ConnectionService connectionService;
     private final ClientService clientService;
 
     @SneakyThrows
     @PostMapping("/api/v1/clients")
-    public String addIpAddress(@RequestBody Client client) {
-        LOG.info("======================== ConnectController: PostMapping - addIpAddress ========================");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        if (clientService.isOldClientInDb(client)) {
-            connectionService.postRequestForService(Services.KAREN_BOT.getTitle(), "/api/v1/bot/client/connect", request);
-            return "Data has not update because old data equals new data";
-        }
-        connectionService.postRequestForService(Services.KAREN_BOT.getTitle(), "/api/v1/bot" + clientService.getClientEndPoint(), request);
-        return connectionService.postRequestForService(Services.KAREN_DATA.getTitle(), clientService.getClientEndPoint(), request);
+    public void setClient(@RequestBody Client client) {
+        clientService.checkClientAlreadyExist(client);
     }
 }
