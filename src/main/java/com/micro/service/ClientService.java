@@ -1,9 +1,8 @@
 package com.micro.service;
 
 import com.micro.dto.Client;
+import com.micro.dto.board.BoardConfig;
 import com.micro.enums.Services;
-import com.micro.exception.ApiRequestException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,30 +14,56 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ClientService {
-    private final ConnectionService connectionService;
-    //TODO заменить endpoint /api/v1/bot/client/connect -> /api/v1/bot/client/connected
-    @Getter
-    private String clientEndPointForKarenBot = "/api/v1/bot/client/connect";
+    private static final String KAREN_DATA = Services.KAREN_DATA.getTitle();
+    private static final String KAREN_BOT = Services.KAREN_BOT.getTitle();
+    private static final String API_V1_BOARDS = "/api/v1/boards";
 
-    private HttpEntity<Client> makeClientRequest(Client client) {
+    private static final String API_V1_CLIENTS = "/api/v1/clients";
+    private static final String API_V1_CLIENT_UPDATE = "/api/v1/client/update";
+    private static final String API_V1_BOT_NOTIFY = "/api/v1/bot/notify";
+    private final ConnectionService connectionService;
+
+    private HttpEntity<String> requestMessage;
+
+    private <T> HttpEntity<T> buildRequest(T data) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(client, headers);
+        return new HttpEntity<>(data, headers);
     }
 
-    public void checkClientAlreadyExist(Client client) {
-        Client clientData = connectionService.getResponseFromService(Services.KAREN_DATA.getTitle(), "/api/v1/clients/" + client.getName(), Client.class);
-        if (clientData == null) {
-            String response = connectionService.postRequestForService(Services.KAREN_DATA.getTitle(), "/api/v1/clients", makeClientRequest(client));
-            clientEndPointForKarenBot = "/api/v1/clients";
+    public String postBoardConfigInKarenData(BoardConfig boardConfig) {
+        return connectionService.postRequestForService(KAREN_DATA, API_V1_BOARDS, buildRequest(boardConfig));
+    }
+
+    public void checkAndProcessClient(Client client) {
+        requestMessage = buildRequest(String.format("Client was connected: %s, ip: %s", client.getName(), client.getIp()));
+        Client existingClient = getClient(client.getName());
+        if (existingClient == null) {
+            createClient(client);
         } else {
-            List<String> differences = clientData.getDifferences(client);
-            if(differences != null) {
-                //TODO add log
-                connectionService.putRequestForService(Services.KAREN_DATA.getTitle(), "/api/v1/client/update", makeClientRequest(client));
-                clientEndPointForKarenBot = "/api/v1/client/update";
-            }
+            updateClientIfNeeded(existingClient, client);
         }
-        connectionService.postRequestForService(Services.KAREN_BOT.getTitle(), clientEndPointForKarenBot, makeClientRequest(client));
+        notifyKarenBot();
+    }
+
+    public Client getClient(String name) {
+        return connectionService.getResponseFromService(KAREN_DATA, API_V1_CLIENTS + "/" + name, Client.class);
+    }
+
+    private void createClient(Client client) {
+        connectionService.postRequestForService(KAREN_DATA, API_V1_CLIENTS, buildRequest(client));
+        requestMessage = buildRequest(String.format("New client was added: %s, ip: %s", client.getName(), client.getIp()));
+    }
+
+    private void updateClientIfNeeded(Client existingClient, Client client) {
+        List<String> differences = existingClient.getDifferences(client);
+        if (differences != null) {
+            connectionService.putRequestForService(KAREN_DATA, API_V1_CLIENT_UPDATE, buildRequest(client));
+            requestMessage = buildRequest(String.format("Client was updated: %s, ip: %s, differences fields: %s", client.getName(), client.getIp(), differences));
+        }
+    }
+
+    private void notifyKarenBot() {
+        connectionService.postRequestForService(KAREN_BOT, API_V1_BOT_NOTIFY, requestMessage);
     }
 }
