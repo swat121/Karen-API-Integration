@@ -24,6 +24,7 @@ public class ClientService {
     private static final String API_V1_CLIENTS = "/api/v1/clients";
     private static final String API_V1_CLIENT_UPDATE = "/api/v1/client/update";
     private static final String API_V1_BOT_NOTIFY = "/api/v1/bot/notify";
+    private static final String API_V1_USERS = "/api/v1/users";
     private final ConnectionService connectionService;
 
     private String requestMessage;
@@ -75,6 +76,6 @@ public class ClientService {
     }
 
     private List<ExternalUser> getIsNotifyUsers() {
-        return Arrays.stream(connectionService.getResponseFromService(KAREN_DATA, API_V1_CLIENT_UPDATE, ExternalUser[].class)).filter(ExternalUser::getIsNotify).toList();
+        return Arrays.stream(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class)).filter(ExternalUser::getIsNotify).toList();
     }
 }
