@@ -34,12 +34,12 @@ public class TestConfig {
     public class MockLoadBalancerClient implements LoadBalancerClient {
         @Override
         public ServiceInstance choose(String serviceId) {
-            return new DefaultServiceInstance("mockInstanceId", serviceId, "192.168.0.10", 8085, false);
+            return new DefaultServiceInstance("mockInstanceId", serviceId, "192.168.0.10", 8088, false);
         }
 
         @Override
         public <T> ServiceInstance choose(String serviceId, Request<T> request) {
-            return new DefaultServiceInstance("mockInstanceId", serviceId, "192.168.0.10", 8085, false);
+            return new DefaultServiceInstance("mockInstanceId", serviceId, "192.168.0.10", 8088, false);
         }
 
         @Override
@@ -62,7 +62,7 @@ public class TestConfig {
 
         @Override
         public URI reconstructURI(ServiceInstance instance, URI original) {
-            return URI.create("http://localhost:8080" + original.getPath());
+            return original;
         }
     }
 }

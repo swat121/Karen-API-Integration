@@ -27,7 +27,7 @@ public class Client {
     public List<String> getDifferences(Client other) {
         List<String> differences = new ArrayList<>();
 
-        if (!Objects.equals(ip, other.ip)) differences.add("id");
+        if (!Objects.equals(ip, other.ip)) differences.add("ip");
         if (!Objects.equals(name, other.name)) differences.add("name");
         if (!Objects.equals(mac, other.mac)) differences.add("mac");
         if (!Objects.equals(ssid, other.ssid)) differences.add("ssid");
