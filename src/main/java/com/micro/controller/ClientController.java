@@ -21,7 +21,7 @@ public class ClientController {
         clientService.checkAndProcessClient(client);
     }
 
-    @PostMapping("/api/v1/boards")
+    @PostMapping("/api/v1/board-config")
     public String setBoardConfig(@RequestBody BoardConfig boardConfig) {
         return clientService.postBoardConfigInKarenData(boardConfig);
     }

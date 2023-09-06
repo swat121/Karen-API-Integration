@@ -61,7 +61,7 @@ public class ClientService {
 
     private void updateClientIfNeeded(Client existingClient, Client client) {
         List<String> differences = existingClient.getDifferences(client);
-        if (differences != null) {
+        if (differences.size() != 0) {
             connectionService.putRequestForService(KAREN_DATA, API_V1_CLIENT_UPDATE, buildRequest(client));
             requestMessage = String.format("Client was updated: %s, ip: %s, differences fields: %s", client.getName(), client.getIp(), differences);
         }

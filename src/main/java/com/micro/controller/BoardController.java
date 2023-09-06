@@ -25,7 +25,7 @@ public class BoardController {
     }
 
     @PutMapping("/api/v1/{name}/switchers/{module}/{id}")
-    public String getDataBySwitcher(@PathVariable String name, @PathVariable String module, @PathVariable String id){
+    public String putDataBySwitcher(@PathVariable String name, @PathVariable String module, @PathVariable String id){
         return boardService.makeSwitcherRequest(name, module, id);
     }
 }

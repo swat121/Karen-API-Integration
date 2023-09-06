@@ -19,7 +19,7 @@ public class ConnectionService {
     private final LoadBalancerClient loadBalancerClient;
 
     public <T> T requestForBoard(String url, HttpMethod method, @Nullable HttpEntity<MultiValueMap<String, String>> requestEntity, Class<T> responseType) {
-        return restTemplate.exchange("http://" + url, method, requestEntity, responseType).getBody();
+        return restTemplate.exchange(url, method, requestEntity, responseType).getBody();
     }
 
     @SneakyThrows
@@ -35,7 +35,7 @@ public class ConnectionService {
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);
             String response = restTemplate.postForEntity(backendUrl, request, String.class).getBody();
-            return response + " " + backendInstance.getInstanceId();
+            return response;
         });
     }
 

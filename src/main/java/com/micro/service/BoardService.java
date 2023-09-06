@@ -15,7 +15,7 @@ public class BoardService {
     private final ClientService clientService;
 
     private String makeRequest(String name, String module, String id, String endpoint, HttpMethod method, @Nullable HttpEntity<MultiValueMap<String, String>> requestEntity) {
-        String baseUrl = clientService.getClient(name).getIp() + ":80/api/v1/" + endpoint;
+        String baseUrl = "http://" + clientService.getClient(name).getIp() + ":8088/api/v1/" + endpoint;
 
         String requestUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/{module}/{id}")
