@@ -1,6 +1,7 @@
 package com.micro.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
@@ -11,11 +12,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class BoardService {
+
+    @Value("${board.port}")
+    private String port;
+
     private final ConnectionService connectionService;
     private final ClientService clientService;
 
     private String makeRequest(String name, String module, String id, String endpoint, HttpMethod method, @Nullable HttpEntity<MultiValueMap<String, String>> requestEntity) {
-        String baseUrl = "http://" + clientService.getClient(name).getIp() + ":8088/api/v1/" + endpoint;
+        String baseUrl = String.format("http://%s:%s/api/v1/%s", clientService.getClient(name).getIp(), port, endpoint);
 
         String requestUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/{module}/{id}")
