@@ -19,11 +19,9 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate() {
-        RestTemplate restTemplate = new RestTemplateBuilder()
+        return new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(5))
+                .errorHandler(new CustomErrorHandler(objectMapper))
                 .build();
-
-        restTemplate.setErrorHandler(new CustomErrorHandler(objectMapper));
-        return restTemplate;
     }
 }

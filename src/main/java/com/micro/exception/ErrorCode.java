@@ -1,24 +1,18 @@
 package com.micro.exception;
 
-public enum ErrorCode {
-    ENTITY_NOT_FOUND(404, "Entity - Not Found"),
-    UNPROCESSABLE_ENTITY(422, "Wrong entity request"),
-    SERVER_ERROR(500, "Server Error");
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
-    private final int httpStatus;
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity - Not Found"),
+    UNPROCESSABLE_ENTITY(HttpStatus.UNPROCESSABLE_ENTITY, "Wrong entity request"),
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error");
+
+    private final HttpStatus httpStatus;
     private final String description;
 
-    ErrorCode(int httpStatus, String description) {
-        this.httpStatus = httpStatus;
-        this.description = description;
-    }
-
-    public int getHttpStatus() {
-        return httpStatus;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }
 

@@ -15,7 +15,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ApiRequestException.class)
     public ResponseEntity<Object> handleApiRequestException(ApiRequestException e) {
         ErrorCode errorCode = e.getErrorCode();
-        return new ResponseEntity<>(buildErrorResponse("ApiRequestException: " + e.getMessage()), HttpStatus.valueOf(errorCode.getHttpStatus()));
+        return new ResponseEntity<>(buildErrorResponse("ApiRequestException: " + e.getMessage()), errorCode.getHttpStatus());
     }
 
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
