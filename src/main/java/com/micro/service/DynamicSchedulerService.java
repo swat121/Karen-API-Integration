@@ -1,5 +1,7 @@
 package com.micro.service;
 
+import com.micro.dto.scheduler.IntervalTask;
+import com.micro.dto.scheduler.PlannedTask;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,26 +24,19 @@ public class DynamicSchedulerService {
 
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
-    private final ConnectionService connectionService;
     private final BoardService boardService;
 
     @Async
-    public synchronized CompletableFuture<Void> startTask(String taskName, long updateTime) {
+    public synchronized CompletableFuture<Void> startIntervalTask(IntervalTask body) {
         return CompletableFuture.runAsync(() -> {
-            if(scheduledTasks.get(taskName) != null) {
-                stopTask(taskName);
+            if(scheduledTasks.get(body.getTaskName()) != null) {
+                stopTask(body.getTaskName());
             }
             ScheduledFuture<?> futureTask = null;
 
-            switch (taskName) {
-                case "temperatureTask":
-                    futureTask = threadPoolTaskScheduler.scheduleWithFixedDelay(this::temperatureTask, updateTime);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown task name: " + taskName);
-            }
+            futureTask = threadPoolTaskScheduler.scheduleWithFixedDelay(() -> executeSensorIntervalTask(body), body.getUpdateMillisTime());
 
-            scheduledTasks.put(taskName, futureTask);
+            scheduledTasks.put(body.getTaskName(), futureTask);
         });
     }
 
@@ -55,22 +50,30 @@ public class DynamicSchedulerService {
         }
     }
 
-    //TODO: this example, do not work
-    private void temperatureTask() {
-        boardService.makeSensorRequest("patric", "temperature", "4321");
+    public void startPlannedTask(PlannedTask body) {
+        Date plannedDate = getPlannedDate(body.getHours(), body.getMinute());
+        ScheduledFuture<?> futureTask = threadPoolTaskScheduler.schedule(
+                () -> executeSwitcherPlannedTask(body),
+                plannedDate
+        );
+        scheduledTasks.put(body.getTaskName(), futureTask);
     }
 
-    public void scheduleOneTimeTask(int hours, int minute) {
-        int plannedTime = hours * 60 + minute;
-        Calendar currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.MINUTE, plannedTime);
-        Date laterDate = currentDate.getTime();
-
-        threadPoolTaskScheduler.schedule(this::executeOneTimeTask, laterDate);
+    private Date getPlannedDate(int hours, int minutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, hours);
+        calendar.add(Calendar.MINUTE, minutes);
+        return calendar.getTime();
     }
 
     //TODO: this example, do not work
-    private void executeOneTimeTask() {
-        System.out.println("Задача выполнена!");
+    //TODO make return value
+    private void executeSwitcherPlannedTask(PlannedTask body) {
+        boardService.makeSwitcherRequest(body.getClientName(), body.getModule(), body.getModuleId());
+    }
+
+    //TODO make return value
+    private void executeSensorIntervalTask(IntervalTask body) {
+        boardService.makeSensorRequest(body.getClientName(), body.getModule(), body.getModuleId());
     }
 }
