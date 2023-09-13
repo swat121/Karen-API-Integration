@@ -5,6 +5,8 @@ import com.micro.dto.ExternalUser;
 import com.micro.dto.board.BoardConfig;
 import com.micro.dto.bot.NotifyRequest;
 import com.micro.enums.Services;
+import com.micro.exception.ApiRequestException;
+import com.micro.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,14 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientService {
     private static final String KAREN_DATA = Services.KAREN_DATA.getTitle();
-    private static final String KAREN_BOT = Services.KAREN_BOT.getTitle();
     private static final String API_V1_BOARDS = "/api/v1/boards";
-
     private static final String API_V1_CLIENTS = "/api/v1/clients";
     private static final String API_V1_CLIENT_UPDATE = "/api/v1/client/update";
-    private static final String API_V1_BOT_NOTIFY = "/api/v1/bot/notify";
-    private static final String API_V1_USERS = "/api/v1/users";
     private final ConnectionService connectionService;
+    private final BotService botService;
 
     private String requestMessage;
 
@@ -41,13 +40,17 @@ public class ClientService {
 
     public void checkAndProcessClient(Client client) {
         requestMessage = String.format("Client was connected: %s, ip: %s", client.getName(), client.getIp());
-        Client existingClient = getClient(client.getName());
-        if (existingClient == null) {
-            createClient(client);
-        } else {
+        try {
+            Client existingClient = getClient(client.getName());
             updateClientIfNeeded(existingClient, client);
+        } catch (ApiRequestException e) {
+            if (e.getErrorCode() == ErrorCode.ENTITY_NOT_FOUND) {
+                createClient(client);
+            } else {
+                throw e;
+            }
         }
-        notifyKarenBot();
+        botService.notifyKarenBot(requestMessage, false);
     }
 
     public Client getClient(String name) {
@@ -65,17 +68,5 @@ public class ClientService {
             connectionService.putRequestForService(KAREN_DATA, API_V1_CLIENT_UPDATE, buildRequest(client));
             requestMessage = String.format("Client was updated: %s, ip: %s, differences fields: %s", client.getName(), client.getIp(), differences);
         }
-    }
-
-    private void notifyKarenBot() {
-        connectionService.postRequestForService(KAREN_BOT, API_V1_BOT_NOTIFY, buildRequest(NotifyRequest
-                .builder()
-                .message(requestMessage)
-                .telegramIds(getIsNotifyUsers())
-                .build()));
-    }
-
-    private List<ExternalUser> getIsNotifyUsers() {
-        return Arrays.stream(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class)).filter(ExternalUser::getIsNotify).toList();
     }
 }

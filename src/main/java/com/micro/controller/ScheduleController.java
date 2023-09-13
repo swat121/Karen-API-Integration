@@ -17,11 +17,11 @@ public class ScheduleController {
     private final DynamicSchedulerService dynamicSchedulerService;
 
     @PostMapping("/api/v1/schedule/interval/start")
-    public ResponseEntity<String> startTask(@RequestBody IntervalTask body) {
+    public ResponseEntity<String> startIntervalTask(@RequestBody IntervalTask body) {
         dynamicSchedulerService.startIntervalTask(body).join();
 
         String responseMessage = String.format(
-                "Task '%s' started with an update interval of %dms for client '%s' (%s: %s).",
+                "Interval task '%s' started with an update interval of %dms for client '%s' (%s: %s)",
                 body.getTaskName(),
                 body.getUpdateMillisTime(),
                 body.getClientName(),
@@ -32,18 +32,18 @@ public class ScheduleController {
         return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/api/v1/schedule/stop")
-    public ResponseEntity<String> stopTask(@RequestParam String taskName) {
+    @PostMapping("/api/v1/schedule/interval/stop")
+    public ResponseEntity<String> stopIntervalTask(@RequestParam String taskName) {
         dynamicSchedulerService.stopTask(taskName);
-        return new ResponseEntity<>("Task: " + taskName + " stopped", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Interval task: " + taskName + " stopped", HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/api/v1/schedule/planned")
-    public ResponseEntity<String> plannedTask(@RequestBody PlannedTask body) {
+    public ResponseEntity<String> startPlannedTask(@RequestBody PlannedTask body) {
         dynamicSchedulerService.startPlannedTask(body);
 
         String responseMessage = String.format(
-                "Planned task '%s' set for %02d:%02d for client '%s' (%s: %s).",
+                "Planned task '%s' set for %02d:%02d for client '%s' (%s: %s)",
                 body.getTaskName(),
                 body.getHours(),
                 body.getMinute(),
