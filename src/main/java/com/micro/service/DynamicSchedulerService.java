@@ -5,6 +5,8 @@ import com.micro.dto.scheduler.IntervalTask;
 import com.micro.dto.scheduler.PlannedTask;
 import com.micro.enums.Services;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,6 +35,7 @@ public class DynamicSchedulerService {
     private final BoardService boardService;
     private final BotService botService;
     private final ConnectionService connectionService;
+    private static final Logger LOG = LogManager.getRootLogger();
 
     private <T> HttpEntity<T> buildRequest(T data) {
         HttpHeaders headers = new HttpHeaders();
@@ -55,13 +58,15 @@ public class DynamicSchedulerService {
     }
 
     public synchronized void stopTask(String taskName) {
+        boolean cancelStatus;
         ScheduledFuture<?> existingTask = scheduledTasks.get(taskName);
         if (existingTask != null) {
-            existingTask.cancel(true);
+            cancelStatus = existingTask.cancel(false);
             scheduledTasks.remove(taskName);
         } else {
             throw new IllegalArgumentException("Unknown task name: " + taskName);
         }
+        LOG.info(String.format("Task: %s, is canceled: %b", taskName, cancelStatus));
     }
 
     public void startPlannedTask(PlannedTask body) {
@@ -84,6 +89,9 @@ public class DynamicSchedulerService {
         String response = boardService.makeSwitcherRequest(body.getClientName(), body.getModule(), body.getModuleId());
         String message = String.format("Planned task %s is completed {%s}: client name - %s, module - %s, id - %s", body.getTaskName(), response, body.getClientName(), body.getModule(), body.getModuleId());
         botService.notifyKarenBot(message, false);
+
+        scheduledTasks.remove(body.getTaskName());
+        LOG.info(String.format("Planned task: %s completed", body.getTaskName()));
     }
 
     private void executeSensorIntervalTask(IntervalTask body) {
@@ -97,5 +105,9 @@ public class DynamicSchedulerService {
         ));
         String message = String.format("Interval task %s is completed {%s}: client name - %s, module - %s, id - %s. All data saved in database", body.getTaskName(), response, body.getClientName(), body.getModule(), body.getModuleId());
         botService.notifyKarenBot(message, false);
+    }
+
+    public Map<String, ScheduledFuture<?>> getScheduledTasks() {
+        return this.scheduledTasks;
     }
 }

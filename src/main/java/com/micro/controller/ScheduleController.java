@@ -6,10 +6,9 @@ import com.micro.service.DynamicSchedulerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +34,7 @@ public class ScheduleController {
     @PostMapping("/api/v1/schedule/interval/stop")
     public ResponseEntity<String> stopIntervalTask(@RequestParam String taskName) {
         dynamicSchedulerService.stopTask(taskName);
-        return new ResponseEntity<>("Interval task: " + taskName + " stopped", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Task: " + taskName + " stopped", HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/api/v1/schedule/planned")
@@ -53,5 +52,10 @@ public class ScheduleController {
         );
 
         return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/api/v1/schedule/tasks")
+    public List<String> getScheduleTasks() {
+        return dynamicSchedulerService.getScheduledTasks().keySet().stream().toList();
     }
 }
