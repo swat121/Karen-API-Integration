@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 public class BoardController {
-    private static final Logger LOG = LogManager.getRootLogger();
     public BoardService boardService;
 
     @GetMapping("/api/v1/{name}/sensors/{module}/{id}")
