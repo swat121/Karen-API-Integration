@@ -5,17 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ReadListener;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 @Component
 public class LoggingFilter extends OncePerRequestFilter {
@@ -25,26 +22,40 @@ public class LoggingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder requestLog = new StringBuilder();
+        CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
 
-        if (request.getServletPath().startsWith("/api/v1")) {
-            sb.append("\n---- REQUEST ---\n");
-            sb.append("URI: ").append(request.getRequestURI()).append("\n");
-            sb.append("Method: ").append(request.getMethod()).append("\n");
-            sb.append("Headers: ").append(request.getHeaderNames()).append("\n");
+        requestLog.append("\n---- REQUEST ---\n");
+        requestLog.append("URI: ").append(request.getRequestURI()).append("\n");
+        requestLog.append("Method: ").append(request.getMethod()).append("\n");
+        requestLog.append("Headers: ").append(Collections.list(request.getHeaderNames())).append("\n");
 
-            if ((request.getMethod().equalsIgnoreCase("POST") || request.getMethod().equalsIgnoreCase("PUT"))
-                    && request.getContentLength() > 0) {
-                CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
-                sb.append("Body: ").append(wrappedRequest.getBody()).append("\n");
-                filterChain.doFilter(wrappedRequest, response);
-            } else {
-                filterChain.doFilter(request, response);
-            }
-            LOG.info(sb.toString());
+        if (requestNeedsBodyCaching(request)) {
+            CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
+            requestLog.append("Body: ").append(wrappedRequest.getBody()).append("\n");
+            filterChain.doFilter(wrappedRequest, wrappedResponse);
         } else {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, wrappedResponse);
         }
+        LOG.info(requestLog.toString());
+
+        StringBuilder responseLog = new StringBuilder();
+        byte[] responseBody = wrappedResponse.getBody();
+        responseLog.append("\n---- RESPONSE --- for request ").append(request.getMethod()).append(": ").append(request.getRequestURI()).append("\n");;
+        responseLog.append("Status: ").append(response.getStatus()).append("\n");
+        responseLog.append("Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
+        LOG.info(responseLog.toString());
+
+        ServletOutputStream out = response.getOutputStream();
+        if (responseBody.length > 0) {
+            out.write(responseBody);
+        }
+        out.flush();
+    }
+
+    private boolean requestNeedsBodyCaching(HttpServletRequest request) {
+        return (request.getMethod().equalsIgnoreCase("POST") || request.getMethod().equalsIgnoreCase("PUT"))
+                && request.getContentLength() > 0;
     }
 
     /**
@@ -52,12 +63,12 @@ public class LoggingFilter extends OncePerRequestFilter {
      * body multiple times. In the typical servlet input stream, once the stream has been read to the end,
      * it cannot be read again. This poses a problem for scenarios where we want to log the content of the
      * body, and then later process it in the usual manner (e.g., by binding it to a method parameter).
-     *
+     * <p>
      * By caching the body of the HTTP request the first time it's read, we can then safely read it multiple
      * times. This class achieves this by wrapping the original HttpServletRequest and then reading and
      * storing the body data in a byte array the first time it's accessed. Subsequent reads will be made
      * against this cached byte array rather than the original stream.
-     *
+     * <p>
      * Note: This approach might introduce some overhead, especially for larger request bodies. It is
      * essential to ensure that this filter is only used for the relevant paths to avoid unnecessary caching
      * and memory usage.
@@ -119,6 +130,57 @@ public class LoggingFilter extends OncePerRequestFilter {
             @Override
             public int read() throws IOException {
                 return cachedBodyInputStream.read();
+            }
+        }
+    }
+
+    public static class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
+
+        private final ByteArrayOutputStream cachedBody = new ByteArrayOutputStream();
+        private final ServletOutputStream outputStream = new CachedServletOutputStream(cachedBody);
+        private PrintWriter writer;
+
+        public CachedBodyHttpServletResponse(HttpServletResponse response) {
+            super(response);
+        }
+
+        @Override
+        public ServletOutputStream getOutputStream() {
+            return outputStream;
+        }
+
+        @Override
+        public PrintWriter getWriter() {
+            if (writer == null) {
+                writer = new PrintWriter(outputStream);
+            }
+            return writer;
+        }
+
+        public byte[] getBody() {
+            return cachedBody.toByteArray();
+        }
+
+        private static class CachedServletOutputStream extends ServletOutputStream {
+            private final ByteArrayOutputStream output;
+
+            public CachedServletOutputStream(ByteArrayOutputStream output) {
+                this.output = output;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setWriteListener(WriteListener writeListener) {
+                // not used
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                output.write(b);
             }
         }
     }
