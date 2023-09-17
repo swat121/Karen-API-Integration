@@ -22,6 +22,7 @@ public class RestTemplateConfig {
         return new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(5))
                 .errorHandler(new CustomErrorHandler(objectMapper))
+                .interceptors(new LoggingRequestInterceptor())
                 .build();
     }
 }
