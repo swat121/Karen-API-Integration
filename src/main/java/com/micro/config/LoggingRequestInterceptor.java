@@ -23,10 +23,10 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         StringBuilder responseLog = new StringBuilder();
 
         requestLog.append("\n---- [OUTGOING] REQUEST ---\n")
-                .append("[OUTGOING] URI: ").append(request.getURI()).append("\n")
-                .append("[OUTGOING] Method: ").append(request.getMethod()).append("\n")
-                .append("[OUTGOING] Headers: ").append(request.getHeaders()).append("\n")
-                .append("[OUTGOING] Body: ").append(new String(body, StandardCharsets.UTF_8)).append("\n");
+                .append("URI: ").append(request.getURI()).append("\n")
+                .append("Method: ").append(request.getMethod()).append("\n")
+                .append("Headers: ").append(request.getHeaders()).append("\n")
+                .append("Body: ").append(new String(body, StandardCharsets.UTF_8)).append("\n");
 
         LOG.info(requestLog.toString());
 
@@ -35,9 +35,9 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         byte[] responseBody = StreamUtils.copyToByteArray(response.getBody());
 
         responseLog.append("\n---- [OUTGOING] RESPONSE ---- for request ").append(request.getMethod()).append(": ").append(request.getURI()).append("\n")
-                .append("[OUTGOING] Status: ").append(response.getStatusCode()).append("\n")
-                .append("[OUTGOING] Headers: ").append(response.getHeaders()).append("\n")
-                .append("[OUTGOING] Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
+                .append("Status: ").append(response.getStatusCode()).append("\n")
+                .append("Headers: ").append(response.getHeaders()).append("\n")
+                .append("Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
 
         LOG.info(responseLog.toString());
 

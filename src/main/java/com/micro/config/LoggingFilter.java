@@ -26,24 +26,25 @@ public class LoggingFilter extends OncePerRequestFilter {
         CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
 
         requestLog.append("\n---- [INCOMING] REQUEST ---\n")
-                .append("[INCOMING] URI: ").append(request.getRequestURI()).append("\n")
-                .append("[INCOMING] Method: ").append(request.getMethod()).append("\n")
-                .append("[INCOMING] Headers: ").append(Collections.list(request.getHeaderNames())).append("\n");
+                .append("URI: ").append(request.getRequestURI()).append("\n")
+                .append("Method: ").append(request.getMethod()).append("\n")
+                .append("Headers: ").append(Collections.list(request.getHeaderNames())).append("\n");
 
         if (requestNeedsBodyCaching(request)) {
             CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request);
-            requestLog.append("[INCOMING] Body: ").append(wrappedRequest.getBody()).append("\n");
+            requestLog.append("Body: ").append(wrappedRequest.getBody()).append("\n");
+            LOG.info(requestLog.toString());
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } else {
+            LOG.info(requestLog.toString());
             filterChain.doFilter(request, wrappedResponse);
         }
-        LOG.info(requestLog.toString());
 
         StringBuilder responseLog = new StringBuilder();
         byte[] responseBody = wrappedResponse.getBody();
         responseLog.append("\n---- [INCOMING] RESPONSE --- for request ").append(request.getMethod()).append(": ").append(request.getRequestURI()).append("\n")
-                .append("[INCOMING] Status: ").append(response.getStatus()).append("\n")
-                .append("[INCOMING] Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
+                .append("Status: ").append(response.getStatus()).append("\n")
+                .append("Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
         LOG.info(responseLog.toString());
 
         ServletOutputStream out = response.getOutputStream();
