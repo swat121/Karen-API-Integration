@@ -58,8 +58,6 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
             return new ByteArrayInputStream(body);
         }
 
-        // Далее делегируем все остальные методы к исходному response
-
         @Override
         public HttpHeaders getHeaders() {
             return response.getHeaders();
