@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         StringBuilder requestLog = new StringBuilder();
-        CachedBodyHttpServletResponse wrappedResponse = new CachedBodyHttpServletResponse(response);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
         requestLog.append("\n---- [INCOMING] REQUEST ---\n")
                 .append("URI: ").append(request.getRequestURI()).append("\n")
@@ -41,17 +42,13 @@ public class LoggingFilter extends OncePerRequestFilter {
         }
 
         StringBuilder responseLog = new StringBuilder();
-        byte[] responseBody = wrappedResponse.getBody();
+        byte[] responseBody = wrappedResponse.getContentAsByteArray();
         responseLog.append("\n---- [INCOMING] RESPONSE --- for request ").append(request.getMethod()).append(": ").append(request.getRequestURI()).append("\n")
                 .append("Status: ").append(response.getStatus()).append("\n")
                 .append("Body: ").append(new String(responseBody, StandardCharsets.UTF_8)).append("\n");
         LOG.info(responseLog.toString());
 
-        ServletOutputStream out = response.getOutputStream();
-        if (responseBody.length > 0) {
-            out.write(responseBody);
-        }
-        out.flush();
+        wrappedResponse.copyBodyToResponse();
     }
 
     private boolean requestNeedsBodyCaching(HttpServletRequest request) {
