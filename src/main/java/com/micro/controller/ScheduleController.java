@@ -31,13 +31,13 @@ public class ScheduleController {
         return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/api/v1/schedule/interval/stop")
+    @PostMapping("/api/v1/schedule/stop")
     public ResponseEntity<String> stopIntervalTask(@RequestParam String taskName) {
         dynamicSchedulerService.stopTask(taskName);
         return new ResponseEntity<>("Task: " + taskName + " stopped", HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/api/v1/schedule/planned")
+    @PostMapping("/api/v1/schedule/planned/start")
     public ResponseEntity<String> startPlannedTask(@RequestBody PlannedTask body) {
         dynamicSchedulerService.startPlannedTask(body);
 
