@@ -1,32 +1,61 @@
 package com.micro.controller;
 
+import com.micro.dto.scheduler.IntervalTask;
+import com.micro.dto.scheduler.PlannedTask;
 import com.micro.service.DynamicSchedulerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class ScheduleController {
     private final DynamicSchedulerService dynamicSchedulerService;
 
-    @PostMapping("/api/v1/schedule/start")
-    public ResponseEntity<String> startTask(@RequestParam String taskName, @RequestParam long updateTime) {
-        dynamicSchedulerService.startTask(taskName, updateTime).join();
-        return ResponseEntity.ok("Task: " + taskName + " started, wist update time is: " + updateTime);
+    @PostMapping("/api/v1/schedule/interval/start")
+    public ResponseEntity<String> startIntervalTask(@RequestBody IntervalTask body) {
+        dynamicSchedulerService.startIntervalTask(body).join();
+
+        String responseMessage = String.format(
+                "Interval task '%s' started with an update interval of %dms for client '%s' (%s: %s)",
+                body.getTaskName(),
+                body.getUpdateMillisTime(),
+                body.getClientName(),
+                body.getModule(),
+                body.getModuleId()
+        );
+
+        return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/api/v1/schedule/stop")
-    public ResponseEntity<String> stopTask(@RequestParam String taskName) {
+    public ResponseEntity<String> stopIntervalTask(@RequestParam String taskName) {
         dynamicSchedulerService.stopTask(taskName);
-        return ResponseEntity.ok("Task: " + taskName + " stopped");
+        return new ResponseEntity<>("Task: " + taskName + " stopped", HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/api/v1/schedule/planned")
-    public ResponseEntity<String> plannedTask(@RequestParam(defaultValue = "0") int hours, @RequestParam(defaultValue = "0") int minute) {
-        dynamicSchedulerService.scheduleOneTimeTask(hours, minute);
-        return ResponseEntity.ok("OK");
+    @PostMapping("/api/v1/schedule/planned/start")
+    public ResponseEntity<String> startPlannedTask(@RequestBody PlannedTask body) {
+        dynamicSchedulerService.startPlannedTask(body);
+
+        String responseMessage = String.format(
+                "Planned task '%s' set for %02d:%02d for client '%s' (%s: %s)",
+                body.getTaskName(),
+                body.getHours(),
+                body.getMinute(),
+                body.getClientName(),
+                body.getModule(),
+                body.getModuleId()
+        );
+
+        return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/api/v1/schedule/tasks")
+    public List<String> getScheduleTasks() {
+        return dynamicSchedulerService.getScheduledTasks().keySet().stream().toList();
     }
 }
