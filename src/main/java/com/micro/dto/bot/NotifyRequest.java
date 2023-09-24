@@ -20,5 +20,5 @@ public class NotifyRequest {
 
     @NonNull
     @JsonProperty("telegramIds")
-    List<ExternalUser> telegramIds;
+    List<String> telegramIds;
 }

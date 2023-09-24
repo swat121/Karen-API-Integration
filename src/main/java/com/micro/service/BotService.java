@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class BotService {
     }
 
     public void notifyKarenBot(String message, boolean isNotifyAllUsers) {
-        List<ExternalUser> users = isNotifyAllUsers ? getUsers() : getIsNotifyUsers();
+        List<String> users = isNotifyAllUsers ? getUsers() : getIsNotifyUsers();
         connectionService.postRequestForService(KAREN_BOT, API_V1_BOT_NOTIFY, buildRequest(NotifyRequest
                 .builder()
                 .message(message)
@@ -36,11 +37,16 @@ public class BotService {
                 .build()));
     }
 
-    private List<ExternalUser> getIsNotifyUsers() {
-        return Arrays.stream(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class)).filter(ExternalUser::getIsNotify).toList();
+    private List<String> getIsNotifyUsers() {
+        return Arrays.stream(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class))
+                .filter(ExternalUser::getIsNotify)
+                .map(ExternalUser::getTelegramId)
+                .toList();
     }
 
-    private List<ExternalUser> getUsers() {
-        return List.of(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class));
+    private List<String> getUsers() {
+        return Stream.of(connectionService.getResponseFromService(KAREN_DATA, API_V1_USERS, ExternalUser[].class))
+                .map(ExternalUser::getTelegramId)
+                .toList();
     }
 }
