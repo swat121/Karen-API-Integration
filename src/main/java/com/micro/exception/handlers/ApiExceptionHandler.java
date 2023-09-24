@@ -1,5 +1,8 @@
-package com.micro.exception;
+package com.micro.exception.handlers;
 
+import com.micro.exception.ApiRequestException;
+import com.micro.exception.ErrorCode;
+import com.micro.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,12 +19,6 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleApiRequestException(ApiRequestException e) {
         ErrorCode errorCode = e.getErrorCode();
         return new ResponseEntity<>(buildErrorResponse("ApiRequestException: " + e.getMessage()), errorCode.getHttpStatus());
-    }
-
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    @ExceptionHandler(ResourceAccessException.class)
-    public ErrorResponse handleConnectException(ResourceAccessException e) {
-        return buildErrorResponse("ResourceAccessException: " + e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

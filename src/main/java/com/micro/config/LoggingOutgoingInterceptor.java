@@ -13,7 +13,7 @@ import org.springframework.util.StreamUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
+public class LoggingOutgoingInterceptor implements ClientHttpRequestInterceptor {
 
     private static final Logger LOG = LogManager.getRootLogger();
 

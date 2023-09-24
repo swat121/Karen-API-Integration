@@ -1,6 +1,9 @@
-package com.micro.exception;
+package com.micro.exception.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.micro.exception.ApiRequestException;
+import com.micro.exception.ErrorCode;
+import com.micro.exception.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;

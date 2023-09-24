@@ -1,7 +1,7 @@
 package com.micro.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.micro.exception.CustomErrorHandler;
+import com.micro.exception.handlers.CustomErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +22,7 @@ public class RestTemplateConfig {
         return new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(5))
                 .errorHandler(new CustomErrorHandler(objectMapper))
-                .interceptors(new LoggingRequestInterceptor())
+                .interceptors(new LoggingOutgoingInterceptor())
                 .build();
     }
 }
