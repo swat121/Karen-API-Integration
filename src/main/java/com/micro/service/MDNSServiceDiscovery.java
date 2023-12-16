@@ -16,11 +16,13 @@ import java.util.Map;
 
 @Service
 public class MDNSServiceDiscovery {
+    private final ClientService clientService;
 
     private static final Logger LOG = LogManager.getRootLogger();
     private final Map<String, ServiceInfo> services = new HashMap<>();
 
-    public MDNSServiceDiscovery() {
+    public MDNSServiceDiscovery(ClientService clientService) {
+        this.clientService = clientService;
         discoverServices();
     }
 
@@ -55,27 +57,35 @@ public class MDNSServiceDiscovery {
                     LOG.info("Resolve new event: " + serviceInfo);
                     if (serviceInfo != null && serviceInfo.getName().contains("esp-plug")) {
 
-                        String number = serviceInfo.getName().split("-")[2];
+                        String name = serviceInfo.getName().split("-")[2];
+                        String ip = serviceInfo.getHostAddresses()[0];
+                        String mac = serviceInfo.getPropertyString("mac");
+                        String ssid = serviceInfo.getPropertyString("ssid");
+                        String version = serviceInfo.getPropertyString("version");
 
+                        if (name == null || ip == null || mac == null || ssid == null || version == null) {
+                            LOG.error("One of five fields is null for: " + serviceInfo.getName());
+                            return;
+                        }
                         services.put(event.getName(), event.getInfo());
 
                         Client newClient = Client.builder()
-                                .ip(serviceInfo.getHostAddresses()[0])
-                                .mac(serviceInfo.getPropertyString("mac"))
-                                .ssid(serviceInfo.getPropertyString("ssid"))
-                                .name(serviceInfo.getPropertyString("name"))
-                                .version(serviceInfo.getPropertyString("version"))
+                                .ip(ip)
+                                .mac(mac)
+                                .ssid(ssid)
+                                .name(name)
+                                .version(version)
                                 .build();
 
                         LOG.info("Esp client was added: " + newClient);
-                        System.out.println(newClient);
+                        clientService.checkAndProcessClient(newClient);
+                        clientService.postBoardConfigInKarenData(serviceInfo.getHostAddresses()[0]);
                     }
                 }
             });
 
         } catch (Exception e) {
-            System.out.println("Error");
-            e.printStackTrace();
+            LOG.error("Error discover services: " + Arrays.toString(e.getStackTrace()));
         }
     }
 

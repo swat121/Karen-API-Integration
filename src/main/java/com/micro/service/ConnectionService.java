@@ -34,8 +34,7 @@ public class ConnectionService {
     public <T> String postRequestForService(String name, String url, HttpEntity<T> request) {
         return loadBalancerClient.execute(name, backendInstance -> {
             URI backendUrl = backendInstance.getUri().resolve(url);
-            String response = restTemplate.postForEntity(backendUrl, request, String.class).getBody();
-            return response;
+            return restTemplate.postForEntity(backendUrl, request, String.class).getBody();
         });
     }
 
