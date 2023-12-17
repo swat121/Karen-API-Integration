@@ -1,6 +1,7 @@
 package com.micro.service;
 
 import com.micro.dto.Client;
+import com.micro.dto.scheduler.IntervalTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,16 @@ import java.util.Map;
 @Service
 public class MDNSServiceDiscovery {
     private final ClientService clientService;
+    private final DynamicSchedulerService schedulerService;
+
+    private final long taskTime = 600000;
 
     private static final Logger LOG = LogManager.getRootLogger();
-    private final Map<String, ServiceInfo> services = new HashMap<>();
+    private final Map<String, ServiceInfo> clients = new HashMap<>();
 
-    public MDNSServiceDiscovery(ClientService clientService) {
+    public MDNSServiceDiscovery(ClientService clientService, DynamicSchedulerService schedulerService) {
         this.clientService = clientService;
+        this.schedulerService = schedulerService;
         discoverServices();
     }
 
@@ -47,8 +52,8 @@ public class MDNSServiceDiscovery {
 
                 @Override
                 public void serviceRemoved(ServiceEvent event) {
-                    System.out.println("remove " + event.getName());
-                    services.remove(event.getName());
+                    LOG.warn("Esp client was disconnected: " + event.getName());
+                    clients.remove(event.getName());
                 }
 
                 @Override
@@ -63,11 +68,16 @@ public class MDNSServiceDiscovery {
                         String ssid = serviceInfo.getPropertyString("ssid");
                         String version = serviceInfo.getPropertyString("version");
 
-                        if (name == null || ip == null || mac == null || ssid == null || version == null) {
-                            LOG.error("One of five fields is null for: " + serviceInfo.getName());
+                        if (mac == null || ssid == null || version == null) {
+                            LOG.warn("One of fields is null for: " + serviceInfo.getName());
                             return;
                         }
-                        services.put(event.getName(), event.getInfo());
+
+                        if (clients.get(event.getName()) != null) {
+                            LOG.warn("Esp data already present " + serviceInfo.getName());
+                            return;
+                        }
+                        clients.put(event.getName(), event.getInfo());
 
                         Client newClient = Client.builder()
                                 .ip(ip)
@@ -80,6 +90,10 @@ public class MDNSServiceDiscovery {
                         LOG.info("Esp client was added: " + newClient);
                         clientService.checkAndProcessClient(newClient);
                         clientService.postBoardConfigInKarenData(serviceInfo.getHostAddresses()[0]);
+                        schedulerService.startServiceAvailabilityCheck(IntervalTask.builder()
+                                .taskName("Check available client")
+                                .updateMillisTime(taskTime)
+                                .build(), clients).join();
                     }
                 }
             });
@@ -89,7 +103,7 @@ public class MDNSServiceDiscovery {
         }
     }
 
-    public Map<String, ServiceInfo> getServices() {
-        return services;
+    public Map<String, ServiceInfo> getClients() {
+        return clients;
     }
 }

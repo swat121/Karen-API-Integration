@@ -7,19 +7,20 @@ import com.micro.enums.Services;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.jmdns.ServiceInfo;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 
@@ -28,6 +29,8 @@ import java.util.concurrent.ScheduledFuture;
 @EnableScheduling
 @RequiredArgsConstructor
 public class DynamicSchedulerService {
+    @Value("${board.port}")
+    private String port;
     private static final String API_V1_SENSORS = "/api/v1/sensors";
     private static final String KAREN_DATA = Services.KAREN_DATA.getTitle();
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -41,6 +44,35 @@ public class DynamicSchedulerService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(data, headers);
+    }
+
+    @Async
+    public synchronized CompletableFuture<Void> startServiceAvailabilityCheck(IntervalTask body, Map<String, ServiceInfo> clients) {
+        return CompletableFuture.runAsync(() -> {
+            LOG.info(String.format("Task: %s started", body.getTaskName()));
+            if (scheduledTasks.get(body.getTaskName()) != null) {
+                stopTask(body.getTaskName());
+            }
+            ScheduledFuture<?> futureTask = null;
+
+            futureTask = threadPoolTaskScheduler.scheduleWithFixedDelay(() -> {
+                for (Map.Entry<String, ServiceInfo> entry : clients.entrySet()) {
+                    LOG.info(String.format("Task: %s, check: %s", body.getTaskName(), entry.getKey()));
+                    String baseUrl = String.format("http://%s:%s/api/v1/ping", entry.getValue().getHostAddresses()[0], port);
+                    try {
+                        connectionService.requestForBoard(baseUrl, HttpMethod.GET, null, String.class);
+                    } catch (ResourceAccessException exception) {
+                        clients.remove(entry.getKey());
+                        LOG.warn(String.format("Task: %s, client: %s disconnected", body.getTaskName(), entry.getKey()));
+
+                        String message = String.format("Interval task %s: client name - %s, was disconnected", body.getTaskName(), entry.getKey());
+                        botService.notifyKarenBot(message, false);
+                    }
+                }
+            }, body.getUpdateMillisTime());
+
+            scheduledTasks.put(body.getTaskName(), futureTask);
+        });
     }
 
     @Async
