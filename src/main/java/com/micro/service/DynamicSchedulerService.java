@@ -19,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
+import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -47,31 +48,47 @@ public class DynamicSchedulerService {
     }
 
     @Async
-    public synchronized CompletableFuture<Void> startServiceAvailabilityCheck(IntervalTask body, Map<String, ServiceInfo> clients) {
+    public synchronized CompletableFuture<Void> startServiceAvailabilityCheck(IntervalTask body, Map<String, ServiceInfo> clients, JmDNS jmdns) {
         return CompletableFuture.runAsync(() -> {
             LOG.info(String.format("Task: %s started", body.getTaskName()));
             if (scheduledTasks.get(body.getTaskName()) != null) {
                 stopTask(body.getTaskName());
             }
-            ScheduledFuture<?> futureTask = null;
+            final ScheduledFuture<?>[] futureTaskWrapper = new ScheduledFuture<?>[1];
 
-            futureTask = threadPoolTaskScheduler.scheduleWithFixedDelay(() -> {
+            futureTaskWrapper[0] = threadPoolTaskScheduler.scheduleWithFixedDelay(() -> {
+                if (clients.isEmpty()) {
+                    LOG.info(String.format("Task: %s stopped as there are no clients", body.getTaskName()));
+                    if (futureTaskWrapper[0] != null) {
+                        futureTaskWrapper[0].cancel(false);
+                    }
+                    return;
+                }
+
+                List<String> clientsToRemove = new ArrayList<>();
                 for (Map.Entry<String, ServiceInfo> entry : clients.entrySet()) {
                     LOG.info(String.format("Task: %s, check: %s", body.getTaskName(), entry.getKey()));
-                    String baseUrl = String.format("http://%s:%s/api/v1/ping", entry.getValue().getHostAddresses()[0], port);
+                    String baseUrl = String.format("http://%s:%s/api/v1/ping", entry.getValue().getHostAddresses()[0], 80);
                     try {
                         connectionService.requestForBoard(baseUrl, HttpMethod.GET, null, String.class);
                     } catch (ResourceAccessException exception) {
-                        clients.remove(entry.getKey());
-                        LOG.warn(String.format("Task: %s, client: %s disconnected", body.getTaskName(), entry.getKey()));
+                        clientsToRemove.add(entry.getKey());
 
+                        LOG.warn(String.format("Task: %s, client: %s disconnected", body.getTaskName(), entry.getKey()));
                         String message = String.format("Interval task %s: client name - %s, was disconnected", body.getTaskName(), entry.getKey());
-                        botService.notifyKarenBot(message, false);
                     }
                 }
-            }, body.getUpdateMillisTime());
 
-            scheduledTasks.put(body.getTaskName(), futureTask);
+                for (String key : clientsToRemove) {
+                    ServiceInfo serviceInfo = clients.get(key);
+                    System.out.println(" ======== === = = == " + serviceInfo);
+                    if (serviceInfo != null) {
+                        System.out.println(" ======== === = = == " + key);
+                        jmdns.unregisterService(serviceInfo);
+                    }
+                    clients.remove(key);
+                }
+            }, body.getUpdateMillisTime());
         });
     }
 

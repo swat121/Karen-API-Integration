@@ -1,7 +1,6 @@
 package com.micro.service;
 
 import com.micro.dto.Client;
-import com.micro.dto.scheduler.IntervalTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -18,16 +17,16 @@ import java.util.Map;
 @Service
 public class MDNSServiceDiscovery {
     private final ClientService clientService;
-    private final DynamicSchedulerService schedulerService;
 
-    private final long taskTime = 600000;
+    //private final DynamicSchedulerService schedulerService;
+    //private final long taskTime = 6000;
 
     private static final Logger LOG = LogManager.getRootLogger();
     private final Map<String, ServiceInfo> clients = new HashMap<>();
 
     public MDNSServiceDiscovery(ClientService clientService, DynamicSchedulerService schedulerService) {
         this.clientService = clientService;
-        this.schedulerService = schedulerService;
+        //this.schedulerService = schedulerService;
         discoverServices();
     }
 
@@ -90,10 +89,10 @@ public class MDNSServiceDiscovery {
                         LOG.info("Esp client was added: " + newClient);
                         clientService.checkAndProcessClient(newClient);
                         clientService.postBoardConfigInKarenData(serviceInfo.getHostAddresses()[0]);
-                        schedulerService.startServiceAvailabilityCheck(IntervalTask.builder()
-                                .taskName("Check available client")
-                                .updateMillisTime(taskTime)
-                                .build(), clients).join();
+//                        schedulerService.startServiceAvailabilityCheck(IntervalTask.builder()
+//                                .taskName("Check available client")
+//                                .updateMillisTime(taskTime)
+//                                .build()).join();
                     }
                 }
             });
