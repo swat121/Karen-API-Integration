@@ -48,51 +48,6 @@ public class DynamicSchedulerService {
     }
 
     @Async
-    public synchronized CompletableFuture<Void> startServiceAvailabilityCheck(IntervalTask body, Map<String, ServiceInfo> clients, JmDNS jmdns) {
-        return CompletableFuture.runAsync(() -> {
-            LOG.info(String.format("Task: %s started", body.getTaskName()));
-            if (scheduledTasks.get(body.getTaskName()) != null) {
-                stopTask(body.getTaskName());
-            }
-            final ScheduledFuture<?>[] futureTaskWrapper = new ScheduledFuture<?>[1];
-
-            futureTaskWrapper[0] = threadPoolTaskScheduler.scheduleWithFixedDelay(() -> {
-                if (clients.isEmpty()) {
-                    LOG.info(String.format("Task: %s stopped as there are no clients", body.getTaskName()));
-                    if (futureTaskWrapper[0] != null) {
-                        futureTaskWrapper[0].cancel(false);
-                    }
-                    return;
-                }
-
-                List<String> clientsToRemove = new ArrayList<>();
-                for (Map.Entry<String, ServiceInfo> entry : clients.entrySet()) {
-                    LOG.info(String.format("Task: %s, check: %s", body.getTaskName(), entry.getKey()));
-                    String baseUrl = String.format("http://%s:%s/api/v1/ping", entry.getValue().getHostAddresses()[0], 80);
-                    try {
-                        connectionService.requestForBoard(baseUrl, HttpMethod.GET, null, String.class);
-                    } catch (ResourceAccessException exception) {
-                        clientsToRemove.add(entry.getKey());
-
-                        LOG.warn(String.format("Task: %s, client: %s disconnected", body.getTaskName(), entry.getKey()));
-                        String message = String.format("Interval task %s: client name - %s, was disconnected", body.getTaskName(), entry.getKey());
-                    }
-                }
-
-                for (String key : clientsToRemove) {
-                    ServiceInfo serviceInfo = clients.get(key);
-                    System.out.println(" ======== === = = == " + serviceInfo);
-                    if (serviceInfo != null) {
-                        System.out.println(" ======== === = = == " + key);
-                        jmdns.unregisterService(serviceInfo);
-                    }
-                    clients.remove(key);
-                }
-            }, body.getUpdateMillisTime());
-        });
-    }
-
-    @Async
     public synchronized CompletableFuture<Void> startIntervalTask(IntervalTask body) {
         return CompletableFuture.runAsync(() -> {
             if (scheduledTasks.get(body.getTaskName()) != null) {

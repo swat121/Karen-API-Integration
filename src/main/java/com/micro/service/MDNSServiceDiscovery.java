@@ -18,15 +18,14 @@ import java.util.Map;
 public class MDNSServiceDiscovery {
     private final ClientService clientService;
 
-    //private final DynamicSchedulerService schedulerService;
-    //private final long taskTime = 6000;
+    private final BotService botService;
 
     private static final Logger LOG = LogManager.getRootLogger();
     private final Map<String, ServiceInfo> clients = new HashMap<>();
 
-    public MDNSServiceDiscovery(ClientService clientService, DynamicSchedulerService schedulerService) {
+    public MDNSServiceDiscovery(ClientService clientService, BotService service) {
         this.clientService = clientService;
-        //this.schedulerService = schedulerService;
+        this.botService = service;
         discoverServices();
     }
 
@@ -53,6 +52,7 @@ public class MDNSServiceDiscovery {
                 public void serviceRemoved(ServiceEvent event) {
                     LOG.warn("Esp client was disconnected: " + event.getName());
                     clients.remove(event.getName());
+                    botService.notifyKarenBot("Client disconnect: " + event.getName(), true);
                 }
 
                 @Override
@@ -89,10 +89,6 @@ public class MDNSServiceDiscovery {
                         LOG.info("Esp client was added: " + newClient);
                         clientService.checkAndProcessClient(newClient);
                         clientService.postBoardConfigInKarenData(serviceInfo.getHostAddresses()[0]);
-//                        schedulerService.startServiceAvailabilityCheck(IntervalTask.builder()
-//                                .taskName("Check available client")
-//                                .updateMillisTime(taskTime)
-//                                .build()).join();
                     }
                 }
             });
