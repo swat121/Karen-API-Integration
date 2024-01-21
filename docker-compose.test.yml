@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  karen-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: karen-api
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - Mock_ip=192.168.0.10
+      - Mock_port=8088
+      - Board_port=8088
+
+  postgres:
+    image: postgres:13.3
+    restart: always
+    container_name: postgreSQL
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: home
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d home" ]
+      interval: 30s
+      timeout: 30s
+      retries: 5

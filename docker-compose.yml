@@ -1,0 +1,14 @@
+services:
+  discovery:
+    image: swat121/discovery-service:latest
+    restart: always
+    container_name: discovery
+    ports:
+      - 8086:8086
+    environment:
+      - EUREKA_HOST=http://discovery:8086/eureka/
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sS http://127.0.0.1:8086 || echo 1" ]
+      interval: 30s
+      timeout: 30s
+      retries: 5

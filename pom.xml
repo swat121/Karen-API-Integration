@@ -20,6 +20,17 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>org.jmdns</groupId>
+			<artifactId>jmdns</artifactId>
+			<version>3.5.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
