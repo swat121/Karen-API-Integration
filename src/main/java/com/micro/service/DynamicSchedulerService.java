@@ -7,19 +7,21 @@ import com.micro.enums.Services;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 
@@ -28,6 +30,8 @@ import java.util.concurrent.ScheduledFuture;
 @EnableScheduling
 @RequiredArgsConstructor
 public class DynamicSchedulerService {
+    @Value("${board.port}")
+    private String port;
     private static final String API_V1_SENSORS = "/api/v1/sensors";
     private static final String KAREN_DATA = Services.KAREN_DATA.getTitle();
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
