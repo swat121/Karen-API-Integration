@@ -7,3 +7,5 @@ eureka:
 spring:
   application:
     name: karen
+server:
+  port: 8080

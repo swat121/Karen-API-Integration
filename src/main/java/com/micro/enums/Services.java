@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum Services {
-    KAREN_DATA("karen-data"),
-    KAREN_BOT("karen-bot");
+    KAREN_DATA("8085"),
+    KAREN_BOT("8084");
 
     private final String title;
 

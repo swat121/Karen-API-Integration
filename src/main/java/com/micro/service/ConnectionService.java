@@ -23,27 +23,20 @@ public class ConnectionService {
     }
 
     @SneakyThrows
-    public <T> T getResponseFromService(String name, String url, Class<T> responseType) {
-        return loadBalancerClient.execute(name, backendInstance -> {
-            URI backendUrl = backendInstance.getUri().resolve(url);
-            return restTemplate.getForEntity(backendUrl, responseType).getBody();
-        });
+    public <T> T getResponseFromService(String port, String url, Class<T> responseType) {
+        URI backendUrl = URI.create("http://localhost:" + port).resolve(url);
+        return restTemplate.getForObject(backendUrl, responseType);
     }
 
     @SneakyThrows
-    public <T> String postRequestForService(String name, String url, HttpEntity<T> request) {
-        return loadBalancerClient.execute(name, backendInstance -> {
-            URI backendUrl = backendInstance.getUri().resolve(url);
-            return restTemplate.postForEntity(backendUrl, request, String.class).getBody();
-        });
+    public <T> String postRequestForService(String port, String url, HttpEntity<T> request) {
+        URI backendUrl = URI.create("http://localhost:" + port).resolve(url);
+        return restTemplate.postForObject(backendUrl, request, String.class);
     }
 
     @SneakyThrows
-    public <T> void putRequestForService(String name, String url, HttpEntity<T> request) {
-        loadBalancerClient.execute(name, backendInstance -> {
-            URI backendUrl = backendInstance.getUri().resolve(url);
-            restTemplate.put(String.valueOf(backendUrl), request, String.class);
-            return backendInstance.getInstanceId();
-        });
+    public <T> void putRequestForService(String port, String url, HttpEntity<T> request) {
+        URI backendUrl = URI.create("http://localhost:" + port).resolve(url);
+        restTemplate.put(String.valueOf(backendUrl), request, String.class);
     }
 }
